@@ -1,0 +1,17 @@
+name: android_flutter_updater
+description: A Flutter plugin to allow updating Android.
+version: 0.0.1
+author:
+homepage:
+
+environment:
+  sdk: ">=2.1.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+flutter:
+  plugin:
+    androidPackage: co.potatoproject.androidflutterupdater
+    pluginClass: AndroidFlutterUpdaterPlugin
