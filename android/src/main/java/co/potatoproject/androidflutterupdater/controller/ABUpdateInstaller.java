@@ -271,6 +271,6 @@ class ABUpdateInstaller {
     }
 
     public void setPerformanceMode(boolean enable) {
-        mUpdateEngine.setPerformanceMode(enable);
+            mUpdateEngine.setPerformanceMode(enable);
     }
 }
