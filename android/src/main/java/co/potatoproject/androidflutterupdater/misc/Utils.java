@@ -163,7 +163,7 @@ public class Utils {
         String device = SystemProperties.get(Constants.PROP_DEVICE);
         String type = SystemProperties.get(Constants.PROP_RELEASE_TYPE).toLowerCase(Locale.ROOT);
 
-        return context.getString(R.string.updater_server_url).replace("{device}", device)
+        return context.getString(R.string.menu_changelog_url).replace("{device}", device)
                 .replace("{type}", type);
     }
 
