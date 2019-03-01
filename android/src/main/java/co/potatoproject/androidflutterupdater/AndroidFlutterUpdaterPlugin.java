@@ -22,7 +22,6 @@ import org.json.JSONException;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -270,8 +269,10 @@ public class AndroidFlutterUpdaterPlugin {
                         }
                         case "installUpdate": {
                             final String id = methodCall.argument("id");
-                            Utils.triggerUpdate(mActivity, id);
-                            result.success(null);
+                            final boolean canInstall = Utils.canInstall(mUpdaterController.getUpdate(id));
+                            if (canInstall)
+                                Utils.triggerUpdate(mActivity, id);
+                            result.success(canInstall);
                             break;
                         }
                         case "getChangelogUrl": {

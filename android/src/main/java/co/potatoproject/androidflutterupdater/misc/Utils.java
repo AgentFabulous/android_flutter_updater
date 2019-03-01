@@ -17,12 +17,9 @@ package co.potatoproject.androidflutterupdater.misc;
 
 import android.annotation.SuppressLint;
 import android.app.AlarmManager;
-import android.content.ClipData;
-import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Environment;
@@ -30,17 +27,10 @@ import android.os.SystemProperties;
 import android.os.storage.StorageManager;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import co.potatoproject.androidflutterupdater.R;
-import co.potatoproject.androidflutterupdater.UpdatesDbHelper;
-import co.potatoproject.androidflutterupdater.controller.UpdaterService;
-import co.potatoproject.androidflutterupdater.model.UpdateBaseInfo;
-import co.potatoproject.androidflutterupdater.model.Update;
-import co.potatoproject.androidflutterupdater.model.UpdateInfo;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -56,6 +46,13 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import co.potatoproject.androidflutterupdater.R;
+import co.potatoproject.androidflutterupdater.UpdatesDbHelper;
+import co.potatoproject.androidflutterupdater.controller.UpdaterService;
+import co.potatoproject.androidflutterupdater.model.Update;
+import co.potatoproject.androidflutterupdater.model.UpdateBaseInfo;
+import co.potatoproject.androidflutterupdater.model.UpdateInfo;
+
 @SuppressWarnings("Convert2Lambda")
 public class Utils {
 
@@ -65,12 +62,8 @@ public class Utils {
     }
 
     public static File getDownloadPath(Context context) {
-        return new File(context.getString(R.string.download_path));
-    }
-
-    public static File getExportPath(Context context) {
         File dir = new File(Environment.getExternalStorageDirectory(),
-                context.getString(R.string.export_path));
+                context.getString(R.string.download_path));
         if (!dir.isDirectory()) {
             if (dir.exists() || !dir.mkdirs()) {
                 throw new RuntimeException("Could not create directory");
@@ -97,7 +90,7 @@ public class Utils {
         return update;
     }
 
-    public static boolean isCompatible(UpdateBaseInfo update) {
+    private static boolean isCompatible(UpdateBaseInfo update) {
         if (!SystemProperties.getBoolean(Constants.PROP_UPDATER_ALLOW_DOWNGRADING, false) &&
                 update.getTimestamp() <= SystemProperties.getLong(Constants.PROP_BUILD_DATE, 0)) {
             Log.d(TAG, update.getName() + " is older than/equal to the current build");
@@ -121,14 +114,14 @@ public class Utils {
             throws IOException, JSONException {
         List<UpdateInfo> updates = new ArrayList<>();
 
-        String json = "";
+        StringBuilder json = new StringBuilder();
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-            for (String line; (line = br.readLine()) != null;) {
-                json += line;
+            for (String line; (line = br.readLine()) != null; ) {
+                json.append(line);
             }
         }
 
-        JSONObject obj = new JSONObject(json);
+        JSONObject obj = new JSONObject(json.toString());
         JSONArray updatesList = obj.getJSONArray("response");
         for (int i = 0; i < updatesList.length(); i++) {
             if (updatesList.isNull(i)) {
@@ -176,17 +169,20 @@ public class Utils {
         context.startService(intent);
     }
 
+    @SuppressWarnings("deprecation")
+    @SuppressLint("MissingPermission")
     public static boolean isNetworkAvailable(Context context) {
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(
                 Context.CONNECTIVITY_SERVICE);
-        @SuppressLint("MissingPermission") NetworkInfo info = cm.getActiveNetworkInfo();
+        NetworkInfo info = cm.getActiveNetworkInfo();
         return !(info == null || !info.isConnected() || !info.isAvailable());
     }
 
+    @SuppressWarnings("deprecation")
     public static boolean isOnWifiOrEthernet(Context context) {
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(
                 Context.CONNECTIVITY_SERVICE);
-        NetworkInfo info = cm.getActiveNetworkInfo();
+        @SuppressLint("MissingPermission") NetworkInfo info = cm.getActiveNetworkInfo();
         return (info != null && (info.getType() == ConnectivityManager.TYPE_ETHERNET
                 || info.getType() == ConnectivityManager.TYPE_WIFI));
     }
@@ -197,8 +193,8 @@ public class Utils {
      * @param oldJson old update list
      * @param newJson new update list
      * @return true if newJson has at least a compatible update not available in oldJson
-     * @throws IOException
-     * @throws JSONException
+     * @throws IOException   may throw IOException
+     * @throws JSONException may throw JSONException
      */
     public static boolean checkForNewUpdates(File oldJson, File newJson)
             throws IOException, JSONException {
@@ -221,7 +217,7 @@ public class Utils {
     /**
      * Get the offset to the compressed data of a file inside the given zip
      *
-     * @param zipFile input zip file
+     * @param zipFile   input zip file
      * @param entryPath full path of the entry
      * @return the offset of the compressed, or -1 if not found
      * @throws IllegalArgumentException if the given entry is not found
@@ -248,7 +244,8 @@ public class Utils {
         throw new IllegalArgumentException("The given entry was not found");
     }
 
-    public static void removeUncryptFiles(File downloadPath) {
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    private static void removeUncryptFiles(File downloadPath) {
         File[] uncryptFiles = downloadPath.listFiles(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
@@ -268,8 +265,9 @@ public class Utils {
      * the user can't access and that might have stale files. This can happen if
      * the data of the application are wiped.
      *
-     * @param context
+     * @param context Context for getDownloadPath
      */
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     public static void cleanupDownloadsDir(Context context) {
         File downloadPath = getDownloadPath(context);
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
@@ -346,7 +344,7 @@ public class Utils {
         return SystemProperties.getBoolean(Constants.PROP_AB_DEVICE, false);
     }
 
-    public static boolean isABUpdate(ZipFile zipFile) {
+    private static boolean isABUpdate(ZipFile zipFile) {
         return zipFile.getEntry(Constants.AB_PAYLOAD_BIN_PATH) != null &&
                 zipFile.getEntry(Constants.AB_PAYLOAD_PROPERTIES_PATH) != null;
     }
@@ -356,18 +354,6 @@ public class Utils {
         boolean isAB = isABUpdate(zipFile);
         zipFile.close();
         return isAB;
-    }
-
-    public static boolean hasTouchscreen(Context context) {
-        return context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN);
-    }
-
-    public static void addToClipboard(Context context, String label, String text, String toastMessage) {
-        ClipboardManager clipboard = (ClipboardManager) context.getSystemService(
-                Context.CLIPBOARD_SERVICE);
-        ClipData clip = ClipData.newPlainText(label, text);
-        clipboard.setPrimaryClip(clip);
-        Toast.makeText(context, toastMessage, Toast.LENGTH_SHORT).show();
     }
 
     public static boolean isEncrypted(Context context, File file) {
@@ -415,7 +401,7 @@ public class Utils {
     }
 
     public static String getBuildDate(Context context) {
-        return StringGenerator.getDateTimeLocalized(context,Long.parseLong(SystemProperties.get(Constants.PROP_BUILD_DATE)));
+        return StringGenerator.getDateTimeLocalized(context, Long.parseLong(SystemProperties.get(Constants.PROP_BUILD_DATE)));
     }
 
     public static String getBuildVersion() {
