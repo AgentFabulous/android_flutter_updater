@@ -136,6 +136,10 @@ class AndroidFlutterUpdater {
     return await _channel.invokeMethod('getBuildDate');
   }
 
+  static Future<String> getReleaseType() async {
+    return await _channel.invokeMethod('getReleaseType');
+  }
+
   static Future<String> getProp(String prop) async {
     return await _channel
         .invokeMethod('getProp', <String, dynamic>{'prop': prop});

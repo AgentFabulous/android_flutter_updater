@@ -257,6 +257,9 @@ public class AndroidFlutterUpdaterPlugin {
                         case "getBuildDate":
                             result.success(Utils.getBuildDate(mActivity));
                             break;
+                        case "getReleaseType":
+                            result.success(Utils.getReleaseType());
+                            break;
                         case "getNativeStatus":
                             result.success(mDataMap);
                             break;
