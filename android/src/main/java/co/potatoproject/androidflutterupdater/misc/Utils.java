@@ -45,6 +45,7 @@ import co.potatoproject.androidflutterupdater.model.UpdateInfo;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -55,6 +56,7 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+@SuppressWarnings("Convert2Lambda")
 public class Utils {
 
     private static final String TAG = "Utils";
@@ -247,8 +249,12 @@ public class Utils {
     }
 
     public static void removeUncryptFiles(File downloadPath) {
-        File[] uncryptFiles = downloadPath.listFiles(
-                (dir, name) -> name.endsWith(Constants.UNCRYPT_FILE_EXT));
+        File[] uncryptFiles = downloadPath.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return name.endsWith(Constants.UNCRYPT_FILE_EXT);
+            }
+        });
         if (uncryptFiles == null) {
             return;
         }

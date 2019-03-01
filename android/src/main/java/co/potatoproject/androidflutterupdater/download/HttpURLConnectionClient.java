@@ -128,6 +128,7 @@ public class HttpURLConnectionClient implements DownloadClient {
         return statusCode == 206;
     }
 
+    @SuppressWarnings("Convert2Lambda")
     private class DownloadThread extends Thread {
 
         private long mTotalBytes = 0;
@@ -192,7 +193,12 @@ public class HttpURLConnectionClient implements DownloadClient {
             for (Map.Entry<String, List<String>> entry : mClient.getHeaderFields().entrySet()) {
                 if ("Link".equalsIgnoreCase((entry.getKey()))) {
                     duplicates = new PriorityQueue<>(entry.getValue().size(),
-                            Comparator.comparingInt(d -> d.mPriority));
+                            new Comparator<DuplicateLink>() {
+                                @Override
+                                public int compare(DuplicateLink d1, DuplicateLink d2) {
+                                    return Integer.compare(d1.mPriority, d2.mPriority);
+                                }
+                            });
 
                     // https://tools.ietf.org/html/rfc6249
                     // https://tools.ietf.org/html/rfc5988#section-5

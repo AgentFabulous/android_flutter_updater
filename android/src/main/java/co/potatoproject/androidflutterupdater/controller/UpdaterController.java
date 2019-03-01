@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+@SuppressWarnings("Convert2Lambda")
 public class UpdaterController {
 
     public static final String ACTION_DOWNLOAD_PROGRESS = "action_download_progress";
@@ -170,8 +171,13 @@ public class UpdaterController {
                 }
                 update.setStatus(UpdateStatus.DOWNLOADING);
                 update.setPersistentStatus(UpdateStatus.Persistent.INCOMPLETE);
-                new Thread(() -> mUpdatesDbHelper.addUpdateWithOnConflict(update,
-                        SQLiteDatabase.CONFLICT_REPLACE)).start();
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mUpdatesDbHelper.addUpdateWithOnConflict(update,
+                                SQLiteDatabase.CONFLICT_REPLACE);
+                    }
+                }).start();
                 notifyUpdateChange(downloadId);
             }
 
@@ -238,22 +244,25 @@ public class UpdaterController {
 
     private void verifyUpdateAsync(final String downloadId) {
         mVerifyingUpdates.add(downloadId);
-        new Thread(() -> {
-            Update update = mDownloads.get(downloadId).mUpdate;
-            File file = update.getFile();
-            if (file.exists() && verifyPackage(file)) {
-                file.setReadable(true, false);
-                update.setPersistentStatus(UpdateStatus.Persistent.VERIFIED);
-                mUpdatesDbHelper.changeUpdateStatus(update);
-                update.setStatus(UpdateStatus.VERIFIED);
-            } else {
-                update.setPersistentStatus(UpdateStatus.Persistent.UNKNOWN);
-                mUpdatesDbHelper.removeUpdate(downloadId);
-                update.setProgress(0);
-                update.setStatus(UpdateStatus.VERIFICATION_FAILED);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Update update = mDownloads.get(downloadId).mUpdate;
+                File file = update.getFile();
+                if (file.exists() && verifyPackage(file)) {
+                    file.setReadable(true, false);
+                    update.setPersistentStatus(UpdateStatus.Persistent.VERIFIED);
+                    mUpdatesDbHelper.changeUpdateStatus(update);
+                    update.setStatus(UpdateStatus.VERIFIED);
+                } else {
+                    update.setPersistentStatus(UpdateStatus.Persistent.UNKNOWN);
+                    mUpdatesDbHelper.removeUpdate(downloadId);
+                    update.setProgress(0);
+                    update.setStatus(UpdateStatus.VERIFICATION_FAILED);
+                }
+                mVerifyingUpdates.remove(downloadId);
+                notifyUpdateChange(downloadId);
             }
-            mVerifyingUpdates.remove(downloadId);
-            notifyUpdateChange(downloadId);
         }).start();
     }
 
@@ -438,12 +447,15 @@ public class UpdaterController {
     }
 
     private void deleteUpdateAsync(final Update update) {
-        new Thread(() -> {
-            File file = update.getFile();
-            if (file.exists() && !file.delete()) {
-                Log.e(TAG, "Could not delete " + file.getAbsolutePath());
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                File file = update.getFile();
+                if (file.exists() && !file.delete()) {
+                    Log.e(TAG, "Could not delete " + file.getAbsolutePath());
+                }
+                mUpdatesDbHelper.removeUpdate(update.getDownloadId());
             }
-            mUpdatesDbHelper.removeUpdate(update.getDownloadId());
         }).start();
     }
 
