@@ -147,153 +147,153 @@ public class AndroidFlutterUpdaterPlugin {
         methodProvider.setMethodCallHandler(new MethodChannel.MethodCallHandler() {
             @Override
             public void onMethodCall(MethodCall methodCall, MethodChannel.Result result) {
-                    switch (methodCall.method) {
-                        case "getPlatformVersion":
-                            result.success("Android " + android.os.Build.VERSION.RELEASE);
-                            break;
-                        case "serviceUnbind":
-                            serviceUnbind();
-                            result.success(null);
-                            break;
-                        case "serviceBind":
-                            serviceBind();
-                            result.success(null);
-                            break;
-                        case "checkForUpdates":
-                            downloadUpdatesList();
-                            result.success(null);
-                            break;
-                        case "getLastChecked":
-                            result.success(getLastCheckedString());
-                            break;
-                        case "getDownloads":
-                            result.success(mUpdateIds);
-                            break;
-                        case "startDownload": {
-                            final String id = methodCall.argument("id");
-                            startDownload(id);
-                            result.success(null);
-                            break;
-                        }
-                        case "cancelAndDelete": {
-                            final String id = methodCall.argument("id");
-                            cancelAndDeleteDownload(id);
-                            result.success(null);
-                            break;
-                        }
-                        case "pauseDownload": {
-                            final String id = methodCall.argument("id");
-                            pauseDownload(id);
-                            result.success(null);
-                            break;
-                        }
-                        case "resumeDownload": {
-                            final String id = methodCall.argument("id");
-                            resumeDownload(id);
-                            result.success(null);
-                            break;
-                        }
-                        case "verifyDownload": {
-                            final String id = methodCall.argument("id");
-                            verifyDownload(id);
-                            result.success(null);
-                            break;
-                        }
-                        case "startUpdate": {
-                            final String id = methodCall.argument("id");
-                            startUpdate(id);
-                            result.success(null);
-                            break;
-                        }
-                        case "needsWarn": {
-                            result.success(needsWarn());
-                            break;
-                        }
-                        case "getWarn": {
-                            result.success(getWarn());
-                            break;
-                        }
-                        case "setWarn": {
-                            final Boolean enable = methodCall.argument("enable");
-                            setWarn(enable == null ? false : enable);
-                            result.success(null);
-                            break;
-                        }
-                        case "getAutoDelete": {
-                            result.success(getAutoDelete());
-                            break;
-                        }
-                        case "setAutoDelete": {
-                            final Boolean enable = methodCall.argument("enable");
-                            setAutoDelete(enable == null ? false : enable);
-                            result.success(null);
-                            break;
-                        }
-                        case "getName": {
-                            final String id = methodCall.argument("id");
-                            result.success(getName(id));
-                            break;
-                        }
-                        case "getVersion": {
-                            final String id = methodCall.argument("id");
-                            result.success(getVersion(id));
-                            break;
-                        }
-                        case "getTimestamp": {
-                            final String id = methodCall.argument("id");
-                            result.success(getTimestampString(id));
-                            break;
-                        }
-                        case "getDeviceName":
-                            result.success(Utils.getDevice());
-                            break;
-                        case "getModel":
-                            result.success(Utils.getModel());
-                            break;
-                        case "getBuildVersion":
-                            result.success(Utils.getBuildVersion());
-                            break;
-                        case "getBuildDate":
-                            result.success(Utils.getBuildDate(mActivity));
-                            break;
-                        case "getReleaseType":
-                            result.success(Utils.getReleaseType());
-                            break;
-                        case "getNativeStatus":
-                            result.success(mDataMap);
-                            break;
-                        case "getProp": {
-                            final String prop = methodCall.argument("prop");
-                            result.success(Utils.getProp(prop));
-                            break;
-                        }
-                        case "installUpdate": {
-                            final String id = methodCall.argument("id");
-                            final boolean canInstall = Utils.canInstall(mUpdaterController.getUpdate(id));
-                            if (canInstall)
-                                Utils.triggerUpdate(mActivity, id);
-                            result.success(canInstall);
-                            break;
-                        }
-                        case "getChangelogUrl": {
-                            result.success(Utils.getChangelogURL(mActivity));
-                            break;
-                        }
-                        case "getUpdateCheckInterval":
-                            result.success(Utils.getUpdateCheckSetting(mActivity));
-                            break;
-                        case "setUpdateCheckInterval": {
-                            final Integer interval = methodCall.argument("interval");
-                            Utils.setUpdateCheckSetting(mActivity, interval == null
-                                    ? Constants.AUTO_UPDATES_CHECK_INTERVAL_WEEKLY
-                                    : interval);
-                            result.success(null);
-                            break;
-                        }
-                        default:
-                            result.notImplemented();
-                            break;
+                switch (methodCall.method) {
+                    case "getPlatformVersion":
+                        result.success("Android " + android.os.Build.VERSION.RELEASE);
+                        break;
+                    case "serviceUnbind":
+                        serviceUnbind();
+                        result.success(null);
+                        break;
+                    case "serviceBind":
+                        serviceBind();
+                        result.success(null);
+                        break;
+                    case "checkForUpdates":
+                        downloadUpdatesList();
+                        result.success(null);
+                        break;
+                    case "getLastChecked":
+                        result.success(getLastCheckedString());
+                        break;
+                    case "getDownloads":
+                        result.success(mUpdateIds);
+                        break;
+                    case "startDownload": {
+                        final String id = methodCall.argument("id");
+                        startDownload(id);
+                        result.success(null);
+                        break;
                     }
+                    case "cancelAndDelete": {
+                        final String id = methodCall.argument("id");
+                        cancelAndDeleteDownload(id);
+                        result.success(null);
+                        break;
+                    }
+                    case "pauseDownload": {
+                        final String id = methodCall.argument("id");
+                        pauseDownload(id);
+                        result.success(null);
+                        break;
+                    }
+                    case "resumeDownload": {
+                        final String id = methodCall.argument("id");
+                        resumeDownload(id);
+                        result.success(null);
+                        break;
+                    }
+                    case "verifyDownload": {
+                        final String id = methodCall.argument("id");
+                        verifyDownload(id);
+                        result.success(null);
+                        break;
+                    }
+                    case "startUpdate": {
+                        final String id = methodCall.argument("id");
+                        startUpdate(id);
+                        result.success(null);
+                        break;
+                    }
+                    case "needsWarn": {
+                        result.success(needsWarn());
+                        break;
+                    }
+                    case "getWarn": {
+                        result.success(getWarn());
+                        break;
+                    }
+                    case "setWarn": {
+                        final Boolean enable = methodCall.argument("enable");
+                        setWarn(enable == null ? false : enable);
+                        result.success(null);
+                        break;
+                    }
+                    case "getAutoDelete": {
+                        result.success(getAutoDelete());
+                        break;
+                    }
+                    case "setAutoDelete": {
+                        final Boolean enable = methodCall.argument("enable");
+                        setAutoDelete(enable == null ? false : enable);
+                        result.success(null);
+                        break;
+                    }
+                    case "getName": {
+                        final String id = methodCall.argument("id");
+                        result.success(getName(id));
+                        break;
+                    }
+                    case "getVersion": {
+                        final String id = methodCall.argument("id");
+                        result.success(getVersion(id));
+                        break;
+                    }
+                    case "getTimestamp": {
+                        final String id = methodCall.argument("id");
+                        result.success(getTimestampString(id));
+                        break;
+                    }
+                    case "getDeviceName":
+                        result.success(Utils.getDevice());
+                        break;
+                    case "getModel":
+                        result.success(Utils.getModel());
+                        break;
+                    case "getBuildVersion":
+                        result.success(Utils.getBuildVersion());
+                        break;
+                    case "getBuildDate":
+                        result.success(Utils.getBuildDate(mActivity));
+                        break;
+                    case "getReleaseType":
+                        result.success(Utils.getReleaseType());
+                        break;
+                    case "getNativeStatus":
+                        result.success(mDataMap);
+                        break;
+                    case "getProp": {
+                        final String prop = methodCall.argument("prop");
+                        result.success(Utils.getProp(prop));
+                        break;
+                    }
+                    case "installUpdate": {
+                        final String id = methodCall.argument("id");
+                        final boolean canInstall = Utils.canInstall(mUpdaterController.getUpdate(id));
+                        if (canInstall)
+                            Utils.triggerUpdate(mActivity, id);
+                        result.success(canInstall);
+                        break;
+                    }
+                    case "getChangelogUrl": {
+                        result.success(Utils.getChangelogURL(mActivity));
+                        break;
+                    }
+                    case "getUpdateCheckInterval":
+                        result.success(Utils.getUpdateCheckSetting(mActivity));
+                        break;
+                    case "setUpdateCheckInterval": {
+                        final Integer interval = methodCall.argument("interval");
+                        Utils.setUpdateCheckSetting(mActivity, interval == null
+                                ? Constants.AUTO_UPDATES_CHECK_INTERVAL_WEEKLY
+                                : interval);
+                        result.success(null);
+                        break;
+                    }
+                    default:
+                        result.notImplemented();
+                        break;
+                }
             }
         });
 

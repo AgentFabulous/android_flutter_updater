@@ -102,8 +102,8 @@ public class ExportUpdateService extends Service {
         private Runnable mRunnableFailed;
 
         private ExportRunnable(File source, File destination,
-                FileUtils.ProgressCallBack progressCallBack,
-                Runnable runnableComplete, Runnable runnableFailed) {
+                               FileUtils.ProgressCallBack progressCallBack,
+                               Runnable runnableComplete, Runnable runnableFailed) {
             mSource = source;
             mDestination = destination;
             mProgressCallBack = progressCallBack;

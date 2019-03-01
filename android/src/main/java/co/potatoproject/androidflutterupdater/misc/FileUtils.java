@@ -41,7 +41,7 @@ public class FileUtils {
         private int mProgress;
 
         private CallbackByteChannel(ReadableByteChannel readableByteChannel, long expectedSize,
-                ProgressCallBack callback) {
+                                    ProgressCallBack callback) {
             this.mCallback = callback;
             this.mSize = expectedSize;
             this.mReadableByteChannel = readableByteChannel;

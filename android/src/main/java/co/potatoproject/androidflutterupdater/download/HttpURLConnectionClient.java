@@ -58,9 +58,9 @@ public class HttpURLConnectionClient implements DownloadClient {
     }
 
     HttpURLConnectionClient(String url, File destination,
-            DownloadClient.ProgressListener progressListener,
-            DownloadClient.DownloadCallback callback,
-            boolean useDuplicateLinks) throws IOException {
+                            DownloadClient.ProgressListener progressListener,
+                            DownloadClient.DownloadCallback callback,
+                            boolean useDuplicateLinks) throws IOException {
         mClient = (HttpURLConnection) new URL(url).openConnection();
         mDestination = destination;
         mProgressListener = progressListener;
@@ -182,6 +182,7 @@ public class HttpURLConnectionClient implements DownloadClient {
             class DuplicateLink {
                 private String mUrl;
                 private int mPriority;
+
                 private DuplicateLink(String url, int priority) {
                     mUrl = url;
                     mPriority = priority;
@@ -220,7 +221,7 @@ public class HttpURLConnectionClient implements DownloadClient {
             }
 
             String newUrl = mClient.getHeaderField("Location");
-            for (;;) {
+            for (; ; ) {
                 try {
                     URL url = new URL(newUrl);
                     if (!url.getProtocol().equals(protocol)) {

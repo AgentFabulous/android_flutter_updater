@@ -51,7 +51,7 @@ class UpdateInstaller {
     }
 
     static synchronized UpdateInstaller getInstance(Context context,
-            UpdaterController updaterController) {
+                                                    UpdaterController updaterController) {
         if (sInstance == null) {
             sInstance = new UpdateInstaller(context, updaterController);
         }

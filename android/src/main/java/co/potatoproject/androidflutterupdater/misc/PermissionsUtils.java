@@ -33,13 +33,13 @@ public class PermissionsUtils {
     /**
      * Check the given permissions and requests them if needed.
      *
-     * @param activity The target activity
+     * @param activity    The target activity
      * @param permissions The permissions to check
      * @param requestCode @see Activity#requestPermissions(String[] , int)
      * @return true if the permission is granted, false otherwise
      */
     public static boolean checkAndRequestPermissions(final Activity activity,
-            final String[] permissions, final int requestCode) {
+                                                     final String[] permissions, final int requestCode) {
         List<String> permissionsList = new ArrayList<>();
         for (String permission : permissions) {
             if (!hasPermission(activity, permission)) {

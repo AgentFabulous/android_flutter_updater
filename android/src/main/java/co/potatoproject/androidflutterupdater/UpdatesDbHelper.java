@@ -126,7 +126,7 @@ public class UpdatesDbHelper extends SQLiteOpenHelper {
     }
 
     private boolean changeUpdateStatus(String selection, String[] selectionArgs,
-            int status) {
+                                       int status) {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(UpdateEntry.COLUMN_NAME_STATUS, status);
