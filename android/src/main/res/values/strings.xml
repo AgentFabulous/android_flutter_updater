@@ -27,7 +27,7 @@
           {device} - Device name
           {type} - Build type
     -->
-    <string name="updater_server_url" translatable="false">https://raw.githubusercontent.com/AgentFabulous/OTA-configs/master/{device}/{type}/update.json</string>
+    <string name="updater_server_url" translatable="false">https://raw.githubusercontent.com/PotatoProject/vendor_ota/baked-release/{device}/{type}/update.json</string>
 
     <string name="verification_failed_notification">Verification failed</string>
     <string name="verifying_download_notification">Verifying update</string>
@@ -54,7 +54,7 @@
 
     <string name="reboot">Reboot</string>
 
-    <string name="menu_changelog_url" translatable="false">https://raw.githubusercontent.com/AgentFabulous/OTA-configs/master/{device}/{type}/changes</string>
+    <string name="menu_changelog_url" translatable="false">https://raw.githubusercontent.com/PotatoProject/vendor_ota/baked-release/{device}/{type}/changes</string>
 
     <string name="header_last_updates_check">Last checked: <xliff:g id="date" example="1 January 1970">%1$s</xliff:g> (<xliff:g id="time" example="01:23">%2$s</xliff:g>)</string>
 
