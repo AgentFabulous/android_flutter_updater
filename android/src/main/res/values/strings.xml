@@ -54,8 +54,6 @@
 
     <string name="reboot">Reboot</string>
 
-    <string name="menu_changelog_url" translatable="false">https://raw.githubusercontent.com/PotatoProject/vendor_ota/baked-release/{device}/{type}/changes</string>
-
     <string name="header_last_updates_check">Last checked: <xliff:g id="date" example="1 January 1970">%1$s</xliff:g> (<xliff:g id="time" example="01:23">%2$s</xliff:g>)</string>
 
     <string name="list_build_version_date">POSP <xliff:g id="version" example="14.1">%1$s</xliff:g> - <xliff:g id="date" example="July 11, 2017">%2$s</xliff:g></string>

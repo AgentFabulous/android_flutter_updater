@@ -275,10 +275,6 @@ public class AndroidFlutterUpdaterPlugin {
                         result.success(canInstall);
                         break;
                     }
-                    case "getChangelogUrl": {
-                        result.success(Utils.getChangelogURL(mActivity));
-                        break;
-                    }
                     case "getUpdateCheckInterval":
                         result.success(Utils.getUpdateCheckSetting(mActivity));
                         break;

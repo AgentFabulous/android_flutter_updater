@@ -150,10 +150,6 @@ class AndroidFlutterUpdater {
         .invokeMethod('installUpdate', <String, dynamic>{'id': id});
   }
 
-  static Future<String> getChangelogUrl() async {
-    return await _channel.invokeMethod('getChangelogUrl');
-  }
-
   static Future<int> getUpdateCheckSetting() async {
     return await _channel.invokeMethod('getUpdateCheckInterval');
   }

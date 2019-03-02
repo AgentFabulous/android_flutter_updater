@@ -157,14 +157,6 @@ public class Utils {
                 .replace("{type}", type);
     }
 
-    public static String getChangelogURL(Context context) {
-        String device = SystemProperties.get(Constants.PROP_DEVICE);
-        String type = SystemProperties.get(Constants.PROP_RELEASE_TYPE).toLowerCase(Locale.ROOT);
-
-        return context.getString(R.string.menu_changelog_url).replace("{device}", device)
-                .replace("{type}", type);
-    }
-
     public static void triggerUpdate(Context context, String downloadId) {
         final Intent intent = new Intent(context, UpdaterService.class);
         intent.setAction(UpdaterService.ACTION_INSTALL_UPDATE);
