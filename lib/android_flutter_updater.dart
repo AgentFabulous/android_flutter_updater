@@ -46,7 +46,7 @@ class AndroidFlutterUpdater {
 
   static Future<List<String>> getDownloads() async {
     final _ret = await _channel.invokeMethod('getDownloads');
-    final List<String> ret = List<String>.from(_ret);
+    final List<String> ret = _ret == null ? List() : List<String>.from(_ret);
     return ret;
   }
 

@@ -62,11 +62,13 @@ public class Utils {
     }
 
     public static File getDownloadPath(Context context) {
+        if (context == null)
+            return null;
         File dir = new File(Environment.getExternalStorageDirectory(),
                 context.getString(R.string.download_path));
         if (!dir.isDirectory()) {
             if (dir.exists() || !dir.mkdirs()) {
-                throw new RuntimeException("Could not create directory");
+                return null;
             }
         }
         return dir;
@@ -270,6 +272,10 @@ public class Utils {
     @SuppressWarnings("ResultOfMethodCallIgnored")
     public static void cleanupDownloadsDir(Context context) {
         File downloadPath = getDownloadPath(context);
+        if (downloadPath == null) {
+            Log.e(TAG, "Failed to access download path!");
+            return;
+        }
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
 
         removeUncryptFiles(downloadPath);

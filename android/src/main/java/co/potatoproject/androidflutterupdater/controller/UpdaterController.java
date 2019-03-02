@@ -60,7 +60,7 @@ public class UpdaterController {
 
     private final PowerManager.WakeLock mWakeLock;
 
-    private final File mDownloadRoot;
+    private File mDownloadRoot;
 
     private int mActiveDownloads = 0;
     private Set<String> mVerifyingUpdates = new HashSet<>();
@@ -359,6 +359,9 @@ public class UpdaterController {
             return false;
         }
         Update update = mDownloads.get(downloadId).mUpdate;
+        mDownloadRoot = Utils.getDownloadPath(mContext);
+        if (mDownloadRoot == null)
+            throw new RuntimeException("Unable to access download root!");
         File destination = new File(mDownloadRoot, update.getName());
         if (destination.exists()) {
             destination = Utils.appendSequentialNumber(destination);
