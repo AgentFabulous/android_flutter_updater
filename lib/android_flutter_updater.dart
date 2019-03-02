@@ -162,6 +162,19 @@ class AndroidFlutterUpdater {
     return await _channel.invokeMethod(
         'setUpdateCheckInterval', <String, dynamic>{'interval': interval});
   }
+
+  static Future<bool> isABDevice() async {
+    return await _channel.invokeMethod('isABDevice');
+  }
+
+  static Future<void> setPerformanceMode(bool enable) async {
+    return await _channel.invokeMethod(
+        'setPerformanceMode', <String, dynamic>{'enable': enable});
+  }
+
+  static Future<bool> getPerformanceMode() async {
+    return await _channel.invokeMethod('getPerformanceMode');
+  }
 }
 
 enum UpdateStatus {

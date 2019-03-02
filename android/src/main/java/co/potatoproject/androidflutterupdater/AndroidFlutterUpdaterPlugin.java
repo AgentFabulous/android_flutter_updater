@@ -290,6 +290,18 @@ public class AndroidFlutterUpdaterPlugin {
                         result.success(null);
                         break;
                     }
+                    case "isABDevice":
+                        result.success(Utils.isABDevice());
+                        break;
+                    case "setPerformanceMode": {
+                        final Boolean enable = methodCall.argument("enable");
+                        Utils.setPerformanceMode(mActivity, mUpdaterController, enable == null ? false : enable);
+                        result.success(null);
+                        break;
+                    }
+                    case "getPerformanceMode":
+                        result.success(Utils.getPerformanceMode(mActivity));
+                        break;
                     default:
                         result.notImplemented();
                         break;

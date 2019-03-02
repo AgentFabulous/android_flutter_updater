@@ -48,6 +48,7 @@ import java.util.zip.ZipFile;
 
 import co.potatoproject.androidflutterupdater.R;
 import co.potatoproject.androidflutterupdater.UpdatesDbHelper;
+import co.potatoproject.androidflutterupdater.controller.UpdaterController;
 import co.potatoproject.androidflutterupdater.controller.UpdaterService;
 import co.potatoproject.androidflutterupdater.model.Update;
 import co.potatoproject.androidflutterupdater.model.UpdateBaseInfo;
@@ -416,5 +417,16 @@ public class Utils {
 
     public static String getProp(String prop) {
         return SystemProperties.get(prop);
+    }
+
+    public static void setPerformanceMode(Context context, UpdaterController updaterController, boolean enable) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        preferences.edit().putBoolean(Constants.PREF_AB_PERF_MODE, enable).apply();
+        updaterController.setPerformanceMode(enable);
+    }
+
+    public static boolean getPerformanceMode(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(Constants.PREF_AB_PERF_MODE, false);
     }
 }
