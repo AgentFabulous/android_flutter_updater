@@ -95,10 +95,15 @@ public class AndroidFlutterUpdaterPlugin {
         mBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                if (UpdaterController.ACTION_UPDATE_STATUS.equals(intent.getAction())) {
-                    String downloadId = intent.getStringExtra(UpdaterController.EXTRA_DOWNLOAD_ID);
-                    UpdateInfo update = mUpdaterController.getUpdate(downloadId);
+                String downloadId = intent.getStringExtra(UpdaterController.EXTRA_DOWNLOAD_ID);
+                UpdateInfo update = mUpdaterController.getUpdate(downloadId);
 
+                if (UpdaterController.ACTION_UPDATE_REMOVED.equals(intent.getAction()) || update == null) {
+                    mUpdateIds.remove(downloadId);
+                    if (mUpdateIds.isEmpty())
+                        mDataMap.put("update_available", "false");
+                    mProgressStreamHandler.emitData(mDataMap);
+                } else if (UpdaterController.ACTION_UPDATE_STATUS.equals(intent.getAction())) {
                     String percentage = NumberFormat.getPercentInstance().format(
                             update.getProgress() / 100.f);
                     String speed = Formatter.formatFileSize(mActivity, update.getSpeed());
@@ -111,9 +116,6 @@ public class AndroidFlutterUpdaterPlugin {
                     mProgressStreamHandler.emitData(mDataMap);
                 } else if (UpdaterController.ACTION_DOWNLOAD_PROGRESS.equals(intent.getAction()) ||
                         UpdaterController.ACTION_INSTALL_PROGRESS.equals(intent.getAction())) {
-                    String downloadId = intent.getStringExtra(UpdaterController.EXTRA_DOWNLOAD_ID);
-                    UpdateInfo update = mUpdaterController.getUpdate(downloadId);
-
                     String percentage = NumberFormat.getPercentInstance().format(
                             update.getProgress() / 100.f);
                     String speed = Formatter.formatFileSize(mActivity, update.getSpeed());
@@ -123,12 +125,6 @@ public class AndroidFlutterUpdaterPlugin {
                     mDataMap.put("size", Long.toString(update.getFileSize()));
                     mDataMap.put("eta", eta.toString());
                     mDataMap.put("speed", speed);
-                    mDataMap.put("update_status", update.getStatus().toString());
-                    mProgressStreamHandler.emitData(mDataMap);
-                } else if (UpdaterController.ACTION_UPDATE_REMOVED.equals(intent.getAction())) {
-                    String downloadId = intent.getStringExtra(UpdaterController.EXTRA_DOWNLOAD_ID);
-                    mUpdateIds.remove(downloadId);
-                    UpdateInfo update = mUpdaterController.getUpdate(downloadId);
                     mDataMap.put("update_status", update.getStatus().toString());
                     mProgressStreamHandler.emitData(mDataMap);
                 }
@@ -456,6 +452,9 @@ public class AndroidFlutterUpdaterPlugin {
             });
             for (UpdateInfo update : sortedUpdates)
                 updateIds.add(update.getDownloadId());
+        } else {
+            mDataMap.put("update_available", "false");
+            mProgressStreamHandler.emitData(mDataMap);
         }
 
         mUpdateIds = updateIds;
