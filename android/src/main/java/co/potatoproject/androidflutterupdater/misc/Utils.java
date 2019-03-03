@@ -94,12 +94,12 @@ public class Utils {
     }
 
     private static boolean isCompatible(UpdateBaseInfo update) {
-        if (!SystemProperties.getBoolean(Constants.PROP_UPDATER_ALLOW_DOWNGRADING, false) &&
+        if (!SystemProperties.getBoolean(getProjectProp(Constants.PROP_UPDATER_ALLOW_DOWNGRADING), false) &&
                 update.getTimestamp() <= SystemProperties.getLong(Constants.PROP_BUILD_DATE, 0)) {
             Log.d(TAG, update.getName() + " is older than/equal to the current build");
             return false;
         }
-        if (!update.getType().equalsIgnoreCase(SystemProperties.get(Constants.PROP_RELEASE_TYPE))) {
+        if (!update.getType().equalsIgnoreCase(SystemProperties.get(getProjectProp(Constants.PROP_RELEASE_TYPE)))) {
             Log.d(TAG, update.getName() + " has type " + update.getType());
             return false;
         }
@@ -107,10 +107,10 @@ public class Utils {
     }
 
     public static boolean canInstall(UpdateBaseInfo update) {
-        return (SystemProperties.getBoolean(Constants.PROP_UPDATER_ALLOW_DOWNGRADING, false) ||
+        return (SystemProperties.getBoolean(getProjectProp(Constants.PROP_UPDATER_ALLOW_DOWNGRADING), false) ||
                 update.getTimestamp() > SystemProperties.getLong(Constants.PROP_BUILD_DATE, 0)) &&
                 update.getVersion().equalsIgnoreCase(
-                        SystemProperties.get(Constants.PROP_BUILD_VERSION));
+                        SystemProperties.get(getProjectProp(Constants.PROP_BUILD_VERSION)));
     }
 
     public static List<UpdateInfo> parseJson(File file, boolean compatibleOnly)
@@ -146,10 +146,10 @@ public class Utils {
     }
 
     public static String getServerURL(Context context) {
-        String device = SystemProperties.get(Constants.PROP_DEVICE);
-        String type = SystemProperties.get(Constants.PROP_RELEASE_TYPE).toLowerCase(Locale.ROOT);
+        String device = SystemProperties.get(getProjectProp(Constants.PROP_DEVICE));
+        String type = SystemProperties.get(getProjectProp(Constants.PROP_RELEASE_TYPE)).toLowerCase(Locale.ROOT);
 
-        String serverUrl = SystemProperties.get(Constants.PROP_UPDATER_URI);
+        String serverUrl = SystemProperties.get(getProjectProp(Constants.PROP_UPDATER_URI));
         if (serverUrl.trim().isEmpty())
             serverUrl = context.getString(R.string.updater_server_url);
 
@@ -388,7 +388,7 @@ public class Utils {
     }
 
     public static String getDevice() {
-        return SystemProperties.get(Constants.PROP_DEVICE);
+        return SystemProperties.get(getProjectProp(Constants.PROP_DEVICE));
     }
 
     public static String getModel() {
@@ -396,7 +396,7 @@ public class Utils {
     }
 
     public static String getReleaseType() {
-        return SystemProperties.get(Constants.PROP_RELEASE_TYPE).toLowerCase(Locale.ROOT);
+        return SystemProperties.get(getProjectProp(Constants.PROP_RELEASE_TYPE)).toLowerCase(Locale.ROOT);
     }
 
     public static String getBuildDate(Context context) {
@@ -404,7 +404,7 @@ public class Utils {
     }
 
     public static String getBuildVersion() {
-        return SystemProperties.get(Constants.PROP_BUILD_VERSION);
+        return SystemProperties.get(getProjectProp(Constants.PROP_BUILD_VERSION));
     }
 
     public static String getProp(String prop) {
@@ -420,5 +420,9 @@ public class Utils {
     public static boolean getPerformanceMode(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context)
                 .getBoolean(Constants.PREF_AB_PERF_MODE, false);
+    }
+
+    public static String getProjectProp(String prop) {
+        return prop.replace("{project}", SystemProperties.get(Constants.PROP_PROJECT_NAME));
     }
 }

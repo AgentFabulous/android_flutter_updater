@@ -40,13 +40,14 @@ public final class Constants {
 
     public static final String PROP_AB_DEVICE = "ro.build.ab_update";
     public static final String PROP_BUILD_DATE = "ro.build.date.utc";
-    public static final String PROP_BUILD_VERSION = "ro.potato.version";
+    public static final String PROP_BUILD_VERSION = "ro.{project}.version";
     public static final String PROP_BUILD_VERSION_INCREMENTAL = "ro.build.version.incremental";
-    public static final String PROP_DEVICE = "ro.potato.device";
+    public static final String PROP_DEVICE = "ro.{project}.device";
     public static final String PROP_MODEL = "ro.product.model";
-    public static final String PROP_RELEASE_TYPE = "ro.potato.type";
-    public static final String PROP_UPDATER_ALLOW_DOWNGRADING = "potato.updater.allow_downgrading";
-    public static final String PROP_UPDATER_URI = "potato.updater.uri";
+    public static final String PROP_PROJECT_NAME = "ro.build.project";
+    public static final String PROP_RELEASE_TYPE = "ro.{project}.type";
+    public static final String PROP_UPDATER_ALLOW_DOWNGRADING = "{project}.updater.allow_downgrading";
+    public static final String PROP_UPDATER_URI = "{project}.updater.uri";
 
     public static final String PREF_INSTALL_OLD_TIMESTAMP = "install_old_timestamp";
     public static final String PREF_INSTALL_NEW_TIMESTAMP = "install_new_timestamp";
