@@ -1,7 +1,7 @@
 name: android_flutter_updater
 description: A Flutter plugin to allow updating Android.
-version: 0.0.1
-author:
+version: 1.0.0
+author: Kshitij Gupta <kshitijgm@gmail.com>
 homepage:
 
 environment:
