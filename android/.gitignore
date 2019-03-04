@@ -5,5 +5,8 @@
 /.idea/workspace.xml
 /build
 /captures
-/local.properties
+/gradle
+/gradlew
+/gradlew.bat
 /libs
+/local.properties
