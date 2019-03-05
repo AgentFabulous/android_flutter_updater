@@ -64,6 +64,7 @@ public class AndroidFlutterUpdaterPlugin {
         put("size", "0");
         put("eta", "");
         put("speed", "");
+        put("force_update_ui_ui", "false");
         put("update_available", "false");
         put("update_status", UpdateStatus.UNKNOWN.toString());
     }};
@@ -102,7 +103,9 @@ public class AndroidFlutterUpdaterPlugin {
                     mUpdateIds.remove(downloadId);
                     if (mUpdateIds.isEmpty())
                         mDataMap.put("update_available", "false");
+                    mDataMap.put("force_update_ui", "true");
                     mProgressStreamHandler.emitData(mDataMap);
+                    mDataMap.put("force_update_ui", "false");
                 } else if (UpdaterController.ACTION_UPDATE_STATUS.equals(intent.getAction())) {
                     String percentage = NumberFormat.getPercentInstance().format(
                             update.getProgress() / 100.f);
@@ -460,7 +463,6 @@ public class AndroidFlutterUpdaterPlugin {
         List<UpdateInfo> sortedUpdates = controller.getUpdates();
         if (!sortedUpdates.isEmpty()) {
             mDataMap.put("update_available", "true");
-            mProgressStreamHandler.emitData(mDataMap);
             sortedUpdates.sort(new Comparator<UpdateInfo>() {
                 @Override
                 public int compare(UpdateInfo u1, UpdateInfo u2) {
@@ -471,8 +473,11 @@ public class AndroidFlutterUpdaterPlugin {
                 updateIds.add(update.getDownloadId());
         } else {
             mDataMap.put("update_available", "false");
-            mProgressStreamHandler.emitData(mDataMap);
         }
+
+        mDataMap.put("force_update_ui", "true");
+        mProgressStreamHandler.emitData(mDataMap);
+        mDataMap.put("force_update_ui", "false");
 
         mUpdateIds = updateIds;
     }
