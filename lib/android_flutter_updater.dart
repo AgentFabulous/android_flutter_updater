@@ -140,6 +140,20 @@ class AndroidFlutterUpdater {
     return await _channel.invokeMethod('getReleaseType');
   }
 
+  static Future<void> setReleaseType(String type) async {
+    return await _channel
+        .invokeMethod('setReleaseType', <String, dynamic>{'type': type});
+  }
+
+  static Future<bool> getVerify() async {
+    return await _channel.invokeMethod('getVerify');
+  }
+
+  static Future<void> setVerify(bool enable) async {
+    return await _channel
+        .invokeMethod('setVerify', <String, dynamic>{'enable': enable});
+  }
+
   static Future<String> getProp(String prop) async {
     return await _channel
         .invokeMethod('getProp', <String, dynamic>{'prop': prop});

@@ -268,6 +268,10 @@ public class UpdaterController {
     }
 
     private boolean verifyPackage(File file) {
+        if (file != null && file.exists() && !Utils.getVerify(mContext)) {
+            Log.i(TAG, "Verification disabled, skipping");
+            return true;
+        }
         try {
             android.os.RecoverySystem.verifyPackage(file, null, null);
             Log.e(TAG, "Verification successful");

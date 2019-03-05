@@ -156,7 +156,7 @@ public class AndroidFlutterUpdaterPlugin {
                         result.success(null);
                         break;
                     case "checkForUpdates":
-                        downloadUpdatesList();
+                        getUpdatesList(true);
                         result.success(null);
                         break;
                     case "getLastChecked":
@@ -253,8 +253,24 @@ public class AndroidFlutterUpdaterPlugin {
                         result.success(Utils.getBuildDate(mActivity));
                         break;
                     case "getReleaseType":
-                        result.success(Utils.getReleaseType());
+                        result.success(Utils.getReleaseType(mActivity));
                         break;
+                    case "setReleaseType": {
+                        final String type = methodCall.argument("type");
+                        Utils.setReleaseType(mActivity, type);
+                        getUpdatesList(true);
+                        result.success(null);
+                        break;
+                    }
+                    case "getVerify":
+                        result.success(Utils.getVerify(mActivity));
+                        break;
+                    case "setVerify": {
+                        final Boolean enable = methodCall.argument("enable");
+                        Utils.setVerify(mActivity, enable == null ? true : enable);
+                        result.success(null);
+                        break;
+                    }
                     case "getNativeStatus":
                         result.success(mDataMap);
                         break;
@@ -336,9 +352,9 @@ public class AndroidFlutterUpdaterPlugin {
         return ret;
     }
 
-    private void getUpdatesList() {
+    private void getUpdatesList(boolean ignoreCache) {
         File jsonFile = Utils.getCachedUpdateList(mActivity);
-        if (jsonFile.exists()) {
+        if (jsonFile.exists() && !ignoreCache) {
             try {
                 loadUpdatesList(jsonFile);
                 Log.d(TAG, "Cached list parsed");
@@ -358,7 +374,7 @@ public class AndroidFlutterUpdaterPlugin {
             UpdaterService.LocalBinder binder = (UpdaterService.LocalBinder) service;
             mUpdaterService = binder.getService();
             mUpdaterController = mUpdaterService.getUpdaterController();
-            getUpdatesList();
+            getUpdatesList(false);
         }
 
         @Override
@@ -382,6 +398,7 @@ public class AndroidFlutterUpdaterPlugin {
             @Override
             public void onResponse(int statusCode, String url,
                                    DownloadClient.Headers headers) {
+                Log.d(TAG, "Updates list response obtained");
             }
 
             @Override
@@ -413,7 +430,7 @@ public class AndroidFlutterUpdaterPlugin {
             long millis = System.currentTimeMillis();
             preferences.edit().putLong(Constants.PREF_LAST_UPDATE_CHECK, millis).apply();
             if (json.exists() && Utils.isUpdateCheckEnabled(mActivity) &&
-                    Utils.checkForNewUpdates(json, jsonNew)) {
+                    Utils.checkForNewUpdates(json, jsonNew, mActivity)) {
                 UpdatesCheckReceiver.updateRepeatingUpdatesCheck(mActivity);
             }
             // In case we set a one-shot check because of a previous failure
@@ -430,7 +447,7 @@ public class AndroidFlutterUpdaterPlugin {
         UpdaterController controller = mUpdaterService.getUpdaterController();
         //boolean newUpdates = false;
 
-        List<UpdateInfo> updates = Utils.parseJson(jsonFile, true);
+        List<UpdateInfo> updates = Utils.parseJson(jsonFile, true, mActivity);
         List<String> updatesOnline = new ArrayList<>();
         for (UpdateInfo update : updates) {
             /*newUpdates |= */

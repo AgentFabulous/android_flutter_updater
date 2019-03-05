@@ -93,13 +93,13 @@ public class Utils {
         return update;
     }
 
-    private static boolean isCompatible(UpdateBaseInfo update) {
+    private static boolean isCompatible(UpdateBaseInfo update, Context context) {
         if (!SystemProperties.getBoolean(getProjectProp(Constants.PROP_UPDATER_ALLOW_DOWNGRADING), false) &&
                 update.getTimestamp() <= SystemProperties.getLong(Constants.PROP_BUILD_DATE, 0)) {
             Log.d(TAG, update.getName() + " is older than/equal to the current build");
             return false;
         }
-        if (!update.getType().equalsIgnoreCase(SystemProperties.get(getProjectProp(Constants.PROP_RELEASE_TYPE)))) {
+        if (!update.getType().equalsIgnoreCase(getReleaseType(context))) {
             Log.d(TAG, update.getName() + " has type " + update.getType());
             return false;
         }
@@ -113,7 +113,7 @@ public class Utils {
                         SystemProperties.get(getProjectProp(Constants.PROP_BUILD_VERSION)));
     }
 
-    public static List<UpdateInfo> parseJson(File file, boolean compatibleOnly)
+    public static List<UpdateInfo> parseJson(File file, boolean compatibleOnly, Context context)
             throws IOException, JSONException {
         List<UpdateInfo> updates = new ArrayList<>();
 
@@ -132,7 +132,7 @@ public class Utils {
             }
             try {
                 UpdateInfo update = parseJsonUpdate(updatesList.getJSONObject(i));
-                if (!compatibleOnly || isCompatible(update)) {
+                if (!compatibleOnly || isCompatible(update, context)) {
                     updates.add(update);
                 } else {
                     Log.d(TAG, "Ignoring incompatible update " + update.getName());
@@ -147,7 +147,7 @@ public class Utils {
 
     public static String getServerURL(Context context) {
         String device = SystemProperties.get(getProjectProp(Constants.PROP_DEVICE));
-        String type = SystemProperties.get(getProjectProp(Constants.PROP_RELEASE_TYPE)).toLowerCase(Locale.ROOT);
+        String type = getReleaseType(context);
 
         String serverUrl = SystemProperties.get(getProjectProp(Constants.PROP_UPDATER_URI));
         if (serverUrl.trim().isEmpty())
@@ -191,10 +191,10 @@ public class Utils {
      * @throws IOException   may throw IOException
      * @throws JSONException may throw JSONException
      */
-    public static boolean checkForNewUpdates(File oldJson, File newJson)
+    public static boolean checkForNewUpdates(File oldJson, File newJson, Context context)
             throws IOException, JSONException {
-        List<UpdateInfo> oldList = parseJson(oldJson, true);
-        List<UpdateInfo> newList = parseJson(newJson, true);
+        List<UpdateInfo> oldList = parseJson(oldJson, true, context);
+        List<UpdateInfo> newList = parseJson(newJson, true, context);
         Set<String> oldIds = new HashSet<>();
         for (UpdateInfo update : oldList) {
             oldIds.add(update.getDownloadId());
@@ -395,8 +395,17 @@ public class Utils {
         return SystemProperties.get(Constants.PROP_MODEL);
     }
 
-    public static String getReleaseType() {
-        return SystemProperties.get(getProjectProp(Constants.PROP_RELEASE_TYPE)).toLowerCase(Locale.ROOT);
+    public static String getReleaseType(Context context) {
+        String type = PreferenceManager.getDefaultSharedPreferences(context)
+                .getString(Constants.PREF_RELEASE_TYPE, Constants.DEFAULT_RELEASE_TYPE);
+        if (type == null || type.equals(Constants.DEFAULT_RELEASE_TYPE))
+            return SystemProperties.get(getProjectProp(Constants.PROP_RELEASE_TYPE)).toLowerCase(Locale.ROOT);
+        else return type.toLowerCase(Locale.ROOT);
+    }
+
+    public static void setReleaseType(Context context, String type) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        preferences.edit().putString(Constants.PREF_RELEASE_TYPE, type).apply();
     }
 
     public static String getBuildDate(Context context) {
@@ -422,7 +431,17 @@ public class Utils {
                 .getBoolean(Constants.PREF_AB_PERF_MODE, false);
     }
 
-    public static String getProjectProp(String prop) {
+    static String getProjectProp(String prop) {
         return prop.replace("{project}", SystemProperties.get(Constants.PROP_PROJECT_NAME));
+    }
+
+    public static boolean getVerify(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(Constants.PREF_VERIFY_MODE, true);
+    }
+
+    public static void setVerify(Context context, boolean enable) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        preferences.edit().putBoolean(Constants.PREF_VERIFY_MODE, enable).apply();
     }
 }
