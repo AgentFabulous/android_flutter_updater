@@ -46,6 +46,7 @@ public final class Constants {
     public static final String PROP_BUILD_VERSION = "ro.{project}.version";
     public static final String PROP_BUILD_VERSION_INCREMENTAL = "ro.build.version.incremental";
     public static final String PROP_DEVICE = "ro.{project}.device";
+    public static final String PROP_DOWNLOAD_PATH = "ro.{project}.ota_path";
     public static final String PROP_MODEL = "ro.product.model";
     public static final String PROP_PROJECT_NAME = "ro.build.project";
     public static final String PROP_RELEASE_TYPE = "ro.{project}.type";

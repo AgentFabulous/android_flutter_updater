@@ -65,8 +65,12 @@ public class Utils {
     public static File getDownloadPath(Context context) {
         if (context == null)
             return null;
+        String relativeDownloadPath =
+                SystemProperties.get(getProjectProp(Constants.PROP_DOWNLOAD_PATH));
+        if (relativeDownloadPath.trim().isEmpty())
+            relativeDownloadPath = context.getString(R.string.download_path);
         File dir = new File(Environment.getExternalStorageDirectory(),
-                context.getString(R.string.download_path));
+                relativeDownloadPath);
         if (!dir.isDirectory()) {
             if (dir.exists() || !dir.mkdirs()) {
                 return null;
