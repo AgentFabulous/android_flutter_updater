@@ -54,7 +54,7 @@ public class AndroidFlutterUpdaterPlugin {
     private UpdaterController mUpdaterController;
     private List<String> mUpdateIds;
     private BroadcastReceiver mBroadcastReceiver;
-    private final ProgressStreamHandler mProgressStreamHandler = new ProgressStreamHandler();
+    private final NativeStreamHandler mNativeStreamHandler = new NativeStreamHandler();
 
     @SuppressWarnings("unchecked")
     private HashMap<String, String> mDataMap = new HashMap<String, String>() {{
@@ -70,7 +70,7 @@ public class AndroidFlutterUpdaterPlugin {
     }};
 
 
-    class ProgressStreamHandler implements StreamHandler {
+    class NativeStreamHandler implements StreamHandler {
 
         EventChannel.EventSink eventSink;
 
@@ -104,7 +104,7 @@ public class AndroidFlutterUpdaterPlugin {
                     if (mUpdateIds.isEmpty())
                         mDataMap.put("update_available", "false");
                     mDataMap.put("force_update_ui", "true");
-                    mProgressStreamHandler.emitData(mDataMap);
+                    mNativeStreamHandler.emitData(mDataMap);
                     mDataMap.put("force_update_ui", "false");
                 } else if (UpdaterController.ACTION_UPDATE_STATUS.equals(intent.getAction())) {
                     String percentage = NumberFormat.getPercentInstance().format(
@@ -116,7 +116,7 @@ public class AndroidFlutterUpdaterPlugin {
                     mDataMap.put("eta", eta.toString());
                     mDataMap.put("speed", speed);
                     mDataMap.put("update_status", update.getStatus().toString());
-                    mProgressStreamHandler.emitData(mDataMap);
+                    mNativeStreamHandler.emitData(mDataMap);
                 } else if (UpdaterController.ACTION_DOWNLOAD_PROGRESS.equals(intent.getAction()) ||
                         UpdaterController.ACTION_INSTALL_PROGRESS.equals(intent.getAction())) {
                     String percentage = NumberFormat.getPercentInstance().format(
@@ -129,7 +129,7 @@ public class AndroidFlutterUpdaterPlugin {
                     mDataMap.put("eta", eta.toString());
                     mDataMap.put("speed", speed);
                     mDataMap.put("update_status", update.getStatus().toString());
-                    mProgressStreamHandler.emitData(mDataMap);
+                    mNativeStreamHandler.emitData(mDataMap);
                 }
             }
         };
@@ -320,7 +320,7 @@ public class AndroidFlutterUpdaterPlugin {
             }
         });
 
-        eventProvider.setStreamHandler(mProgressStreamHandler);
+        eventProvider.setStreamHandler(mNativeStreamHandler);
     }
 
     public static void registerWith(Registrar registrar) {
@@ -351,7 +351,7 @@ public class AndroidFlutterUpdaterPlugin {
                 StringGenerator.getDateLocalized(mActivity, DateFormat.LONG, lastCheck),
                 StringGenerator.getTimeLocalized(mActivity, lastCheck));
         mDataMap.put("last_checked", ret);
-        mProgressStreamHandler.emitData(mDataMap);
+        mNativeStreamHandler.emitData(mDataMap);
         return ret;
     }
 
@@ -474,9 +474,9 @@ public class AndroidFlutterUpdaterPlugin {
         } else {
             mDataMap.put("update_available", "false");
         }
-
+        
         mDataMap.put("force_update_ui", "true");
-        mProgressStreamHandler.emitData(mDataMap);
+        mNativeStreamHandler.emitData(mDataMap);
         mDataMap.put("force_update_ui", "false");
 
         mUpdateIds = updateIds;
@@ -485,21 +485,21 @@ public class AndroidFlutterUpdaterPlugin {
     private void cancelAndDeleteDownload(String downloadId) {
         pauseDownload(downloadId);
         mDataMap.put("has_active_downloads", Boolean.toString(mUpdaterController.hasActiveDownloads()));
-        mProgressStreamHandler.emitData(mDataMap);
+        mNativeStreamHandler.emitData(mDataMap);
         mUpdaterController.deleteUpdate(downloadId);
     }
 
     private void pauseDownload(String downloadId) {
         UpdateInfo update = mUpdaterController.getUpdate(downloadId);
         mDataMap.put("update_status", update.getStatus().toString());
-        mProgressStreamHandler.emitData(mDataMap);
+        mNativeStreamHandler.emitData(mDataMap);
         mUpdaterController.pauseDownload(downloadId);
     }
 
     private void resumeDownload(String downloadId) {
         UpdateInfo update = mUpdaterController.getUpdate(downloadId);
         mDataMap.put("update_status", update.getStatus().toString());
-        mProgressStreamHandler.emitData(mDataMap);
+        mNativeStreamHandler.emitData(mDataMap);
         mUpdaterController.resumeDownload(downloadId);
     }
 
