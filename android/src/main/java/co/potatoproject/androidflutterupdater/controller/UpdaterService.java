@@ -162,8 +162,9 @@ public class UpdaterService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "Starting service");
 
+        boolean isABInstallingUpdate = ABUpdateInstaller.isInstallingUpdate(this);
         if (intent == null || intent.getAction() == null) {
-            if (ABUpdateInstaller.isInstallingUpdate(this)) {
+            if (isABInstallingUpdate) {
                 // The service is being restarted.
                 ABUpdateInstaller installer = ABUpdateInstaller.getInstance(this,
                         mUpdaterController);
@@ -213,7 +214,7 @@ public class UpdaterService extends Service {
                 installer.cancel();
             }
         }
-        return ABUpdateInstaller.isInstallingUpdate(this) ? START_STICKY : START_NOT_STICKY;
+        return isABInstallingUpdate ? START_STICKY : START_NOT_STICKY;
     }
 
     public UpdaterController getUpdaterController() {
