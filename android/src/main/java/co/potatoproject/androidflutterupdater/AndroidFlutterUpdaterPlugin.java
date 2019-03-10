@@ -64,7 +64,7 @@ public class AndroidFlutterUpdaterPlugin {
         put("size", "0");
         put("eta", "");
         put("speed", "");
-        put("force_update_ui_ui", "false");
+        put("force_update_ui", "false");
         put("update_available", "false");
         put("update_status", UpdateStatus.UNKNOWN.toString());
     }};
