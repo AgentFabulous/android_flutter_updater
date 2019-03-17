@@ -296,7 +296,10 @@ public class UpdaterController {
                     update.setStatus(UpdateStatus.UNKNOWN);
                     return false;
                 } else if (update.getFileSize() > 0) {
-                    update.setStatus(UpdateStatus.PAUSED);
+                    if (Utils.isCurrent(update))
+                        update.setStatus(UpdateStatus.INSTALLED);
+                    else
+                        update.setStatus(UpdateStatus.PAUSED);
                     int progress = Math.round(
                             update.getFile().length() * 100 / update.getFileSize());
                     update.setProgress(progress);

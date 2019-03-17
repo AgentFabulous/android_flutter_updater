@@ -185,6 +185,30 @@ class AndroidFlutterUpdater {
   static Future<bool> getPerformanceMode() async {
     return await _channel.invokeMethod('getPerformanceMode');
   }
+
+  static Future<int> getDownloadProgress(String id) async {
+    return await _channel.invokeMethod('getDownloadProgress', {'id': id});
+  }
+
+  static Future<String> getStatus(String id) async {
+    return await _channel.invokeMethod('getStatus', {'id': id});
+  }
+
+  static Future<int> getPersistentStatus(String id) async {
+    return await _channel.invokeMethod('getPersistentStatus', {'id': id});
+  }
+
+  static Future<String> getEta(String id) async {
+    return await _channel.invokeMethod('getEta', {'id': id});
+  }
+
+  static Future<String> getSpeed(String id) async {
+    return await _channel.invokeMethod('getSpeed', {'id': id});
+  }
+
+  static Future<String> getSize(String id) async {
+    return await _channel.invokeMethod('getSize', {'id': id});
+  }
 }
 
 enum UpdateStatus {
@@ -202,4 +226,10 @@ enum UpdateStatus {
   INSTALLED,
   INSTALLATION_FAILED,
   INSTALLATION_CANCELLED
+}
+
+class Persistent {
+  static const int UNKNOWN = 0; // ignore: non_constant_identifier_names
+  static const int INCOMPLETE = 1; // ignore: non_constant_identifier_names
+  static const int VERIFIED = 2; // ignore: non_constant_identifier_names
 }

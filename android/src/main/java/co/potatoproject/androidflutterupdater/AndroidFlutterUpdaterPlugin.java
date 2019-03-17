@@ -313,6 +313,43 @@ public class AndroidFlutterUpdaterPlugin {
                     case "getPerformanceMode":
                         result.success(Utils.getPerformanceMode(mActivity));
                         break;
+                    case "getDownloadProgress": {
+                        final String id = methodCall.argument("id");
+                        result.success(mUpdaterController.getUpdate(id).getProgress());
+                        break;
+                    }
+                    case "getInstallProgress": {
+                        final String id = methodCall.argument("id");
+                        result.success(mUpdaterController.getUpdate(id).getInstallProgress());
+                        break;
+                    }
+                    case "getStatus": {
+                        final String id = methodCall.argument("id");
+                        result.success(mUpdaterController.getUpdate(id).getStatus().toString());
+                        break;
+                    }
+                    case "getPersistentStatus": {
+                        final String id = methodCall.argument("id");
+                        result.success(mUpdaterController.getUpdate(id).getPersistentStatus());
+                        break;
+                    }
+                    case "getEta": {
+                        final String id = methodCall.argument("id");
+                        result.success(StringGenerator.formatETA(mActivity,
+                                mUpdaterController.getUpdate(id).getEta() * 1000));
+                        break;
+                    }
+                    case "getSpeed": {
+                        final String id = methodCall.argument("id");
+                        result.success(Formatter.formatFileSize(mActivity,
+                                mUpdaterController.getUpdate(id).getSpeed()));
+                        break;
+                    }
+                    case "getSize": {
+                        final String id = methodCall.argument("id");
+                        result.success(Long.toString(mUpdaterController.getUpdate(id).getFileSize()));
+                        break;
+                    }
                     default:
                         result.notImplemented();
                         break;
@@ -448,7 +485,6 @@ public class AndroidFlutterUpdaterPlugin {
             throws IOException, JSONException {
         Log.d(TAG, "Adding remote updates");
         UpdaterController controller = mUpdaterService.getUpdaterController();
-        //boolean newUpdates = false;
 
         List<UpdateInfo> updates = Utils.parseJson(jsonFile, true, mActivity);
         List<String> updatesOnline = new ArrayList<>();
@@ -462,19 +498,23 @@ public class AndroidFlutterUpdaterPlugin {
         List<String> updateIds = new ArrayList<>();
         List<UpdateInfo> sortedUpdates = controller.getUpdates();
         if (!sortedUpdates.isEmpty()) {
-            mDataMap.put("update_available", "true");
+            boolean updatesAvailable = false;
             sortedUpdates.sort(new Comparator<UpdateInfo>() {
                 @Override
                 public int compare(UpdateInfo u1, UpdateInfo u2) {
                     return Long.compare(u2.getTimestamp(), u1.getTimestamp());
                 }
             });
-            for (UpdateInfo update : sortedUpdates)
+            for (UpdateInfo update : sortedUpdates) {
+                if (Utils.canInstall(update))
+                    updatesAvailable = true;
                 updateIds.add(update.getDownloadId());
+            }
+            mDataMap.put("update_available", Boolean.toString(updatesAvailable));
         } else {
             mDataMap.put("update_available", "false");
         }
-        
+
         mDataMap.put("force_update_ui", "true");
         mNativeStreamHandler.emitData(mDataMap);
         mDataMap.put("force_update_ui", "false");
