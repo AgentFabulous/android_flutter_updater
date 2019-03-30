@@ -117,8 +117,8 @@ public class Utils {
                         SystemProperties.get(getProjectProp(Constants.PROP_BUILD_VERSION)));
     }
 
-    public static boolean isCurrent(UpdateBaseInfo update) {
-        return update.getTimestamp() == SystemProperties.getLong(Constants.PROP_BUILD_DATE, 0);
+    public static boolean isCurrentOrOlder(UpdateBaseInfo update) {
+        return update.getTimestamp() <= SystemProperties.getLong(Constants.PROP_BUILD_DATE, 0);
     }
 
     public static List<UpdateInfo> parseJson(File file, boolean compatibleOnly, Context context)
