@@ -27,11 +27,11 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
 
-import co.potatoproject.androidflutterupdater.misc.FileUtils;
-
 import java.io.File;
 import java.io.IOException;
 import java.text.NumberFormat;
+
+import co.potatoproject.androidflutterupdater.misc.FileUtils;
 
 @SuppressWarnings("Convert2Lambda")
 public class ExportUpdateService extends Service {
@@ -146,17 +146,18 @@ public class ExportUpdateService extends Service {
                 NotificationManager.IMPORTANCE_LOW);
         notificationManager.createNotificationChannel(notificationChannel);
 
+        NotificationCompat.BigTextStyle notificationStyle = new NotificationCompat.BigTextStyle()
+                .setBigContentTitle(getString(R.string.dialog_export_title))
+                .bigText(destination.getName());
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this,
-                EXPORT_NOTIFICATION_CHANNEL);
-        NotificationCompat.BigTextStyle notificationStyle = new NotificationCompat.BigTextStyle();
-        notificationBuilder.setContentTitle(getString(R.string.dialog_export_title));
-        notificationStyle.setBigContentTitle(getString(R.string.dialog_export_title));
-        notificationStyle.bigText(destination.getName());
-        notificationBuilder.setStyle(notificationStyle);
-        notificationBuilder.setSmallIcon(R.drawable.ic_system_update);
-        notificationBuilder.addAction(android.R.drawable.ic_media_pause,
-                getString(android.R.string.cancel),
-                getStopPendingIntent());
+                EXPORT_NOTIFICATION_CHANNEL)
+                .setContentTitle(getString(R.string.dialog_export_title))
+                .setStyle(notificationStyle)
+                .setAutoCancel(true)
+                .setSmallIcon(R.drawable.ic_system_update)
+                .addAction(android.R.drawable.ic_media_pause,
+                        getString(android.R.string.cancel),
+                        getStopPendingIntent());
 
         FileUtils.ProgressCallBack progressCallBack = new FileUtils.ProgressCallBack() {
             private long mLastUpdate = -1;
@@ -195,6 +196,7 @@ public class ExportUpdateService extends Service {
         };
 
         Runnable runnableFailed = new Runnable() {
+            @SuppressLint("RestrictedApi")
             @Override
             public void run() {
                 notificationStyle.setSummaryText(null);

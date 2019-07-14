@@ -15,6 +15,7 @@
  */
 package co.potatoproject.androidflutterupdater.controller;
 
+import android.annotation.SuppressLint;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -72,6 +73,7 @@ public class UpdaterService extends Service {
 
     private UpdaterController mUpdaterController;
 
+    @SuppressLint("NewApi")
     @Override
     public void onCreate() {
         super.onCreate();
@@ -229,6 +231,7 @@ public class UpdaterService extends Service {
         }
     }
 
+    @SuppressLint("RestrictedApi")
     private void handleUpdateStatusChange(UpdateInfo update) {
         switch (update.getStatus()) {
             case DELETED: {
