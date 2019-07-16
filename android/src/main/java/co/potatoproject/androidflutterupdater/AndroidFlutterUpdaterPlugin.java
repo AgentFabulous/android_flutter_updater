@@ -9,6 +9,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.icu.text.DateFormat;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
@@ -325,6 +327,10 @@ public class AndroidFlutterUpdaterPlugin {
                         result.success(null);
                         break;
                     }
+                    case "getAccentColor": {
+                        result.success(getAccentColor());
+                        break;
+                    }
                     default:
                         result.notImplemented();
                         break;
@@ -577,5 +583,18 @@ public class AndroidFlutterUpdaterPlugin {
         SharedPreferences preferences =
                 PreferenceManager.getDefaultSharedPreferences(mActivity);
         preferences.edit().putBoolean(Constants.PREF_AUTO_DELETE_UPDATES, enable).apply();
+    }
+
+    private int getAccentColor() {
+        String colResName = "accent_device_default_dark";
+        Resources res = null;
+        try {
+            res = mActivity.getPackageManager().getResourcesForApplication("android");
+            int resId = res.getIdentifier("android:color/" + colResName, null, null);
+            return res.getColor(resId);
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        return 0;
     }
 }

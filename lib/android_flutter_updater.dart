@@ -157,6 +157,9 @@ class AndroidFlutterUpdater {
   static Future<void> startActivity({String pkg, String cls}) async =>
       await _channel.invokeMethod('startActivity', {'pkg': pkg, 'cls': cls});
 
+  static Future<int> getAccentColor() async =>
+      await _channel.invokeMethod('getAccentColor');
+
   static UpdateStatus _strToStatusEnum(String value) =>
       UpdateStatus.values.firstWhere((e) =>
           e.toString().split('.')[1].toUpperCase() == value.toUpperCase());
