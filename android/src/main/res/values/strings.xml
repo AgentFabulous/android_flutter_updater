@@ -40,7 +40,7 @@
 
     <string name="new_updates_found_title">New updates</string>
 
-    <string name="text_download_speed">%1$s, %2$s/s</string>
+    <string name="text_download_speed" translatable="false">%1$s, %2$s/s</string>
 
     <string name="pause_button">Pause</string>
     <string name="resume_button">Resume</string>
@@ -56,7 +56,7 @@
 
     <string name="header_last_updates_check">Last checked: <xliff:g id="date" example="1 January 1970">%1$s</xliff:g> (<xliff:g id="time" example="01:23">%2$s</xliff:g>)</string>
 
-    <string name="list_build_version_date">v<xliff:g id="version" example="14.1">%1$s</xliff:g> - <xliff:g id="date" example="July 11, 2017">%2$s</xliff:g></string>
+    <string name="list_build_version_date" translatable="false">v<xliff:g id="version" example="14.1">%1$s</xliff:g> - <xliff:g id="date" example="July 11, 2017">%2$s</xliff:g></string>
 
     <string name="dialog_export_title">Exporting update</string>
     <string name="notification_export_success">Update exported</string>

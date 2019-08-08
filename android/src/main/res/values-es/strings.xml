@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="download_path">PotatoCenter/</string>
+    <string name="verification_failed_notification">Fallo en la verificación</string>
+    <string name="verifying_download_notification">Verificando actualización</string>
+    <string name="downloading_notification">Descargando</string>
+    <string name="download_paused_notification">Descargar en pausa</string>
+    <string name="download_paused_error_notification">Error de descarga</string>
+    <string name="download_completed_notification">Descarga completa</string>
+    <string name="download_starting_notification">Comenzando descarga</string>
+    <string name="update_failed_notification">Actualización fallida</string>
+    <string name="new_updates_found_title">Nuevas actualizaciones</string>
+    <string name="pause_button">Pausa</string>
+    <string name="resume_button">Reanudar</string>
+    <string name="installing_update">Instalar paquete de actualización</string>
+    <string name="installing_update_error">Error de instalación</string>
+    <string name="installing_update_finished">Actualización instalada</string>
+    <string name="finalizing_package">Finalizando la instalación del paquete</string>
+    <string name="preparing_ota_first_boot">Preparando para el primer inicio</string>
+    <string name="dialog_prepare_zip_message">Preparación de actualización preliminar.</string>
+    <string name="reboot">Reiniciar</string>
+    <string name="header_last_updates_check">Última comprobación: <xliff:g example="1 January 1970" id="date">%1$s</xliff:g> (<xliff:g example="01:23" id="time">%2$s</xliff:g>)</string>
+    <string name="dialog_export_title">Exportando actualización</string>
+    <string name="notification_export_success">Actualización exportada</string>
+    <string name="notification_export_fail">Error de exportación</string>
+    <string name="toast_already_exporting">Ya se está exportando una actualización</string>
+    <string name="export_channel_title">Finalización de la exportación</string>
+    <string name="new_updates_channel_title">Nuevas actualizaciones</string>
+    <string name="ongoing_channel_title">Descargas en curso</string>
+    <string name="update_failed_channel_title">Actualización fallida</string>
+</resources>
