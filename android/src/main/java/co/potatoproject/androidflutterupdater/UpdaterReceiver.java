@@ -26,8 +26,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.PowerManager;
 import android.os.SystemProperties;
-import android.support.v4.app.NotificationCompat;
-import android.support.v7.preference.PreferenceManager;
+import androidx.core.app.NotificationCompat;
+import androidx.preference.PreferenceManager;
 
 import java.text.DateFormat;
 
@@ -63,7 +63,7 @@ public class UpdaterReceiver extends BroadcastReceiver {
         String buildDate = StringGenerator.getDateLocalizedUTC(context,
                 DateFormat.MEDIUM, preferences.getLong(Constants.PREF_INSTALL_NEW_TIMESTAMP, 0));
         String buildInfo = context.getString(R.string.list_build_version_date,
-                BuildInfoUtils.getBuildVersion(), buildDate);
+                BuildInfoUtils.getBuildVersion(context), buildDate);
 
         Intent notificationIntent = new Intent(context, AndroidFlutterUpdaterPlugin.class);
         PendingIntent intent = PendingIntent.getActivity(context, 0, notificationIntent,

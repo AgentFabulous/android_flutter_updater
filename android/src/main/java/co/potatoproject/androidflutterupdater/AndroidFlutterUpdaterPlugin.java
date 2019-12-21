@@ -14,8 +14,8 @@ import android.content.res.Resources;
 import android.icu.text.DateFormat;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
-import android.support.v4.content.LocalBroadcastManager;
+import androidx.annotation.NonNull;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import android.text.format.Formatter;
 import android.util.Log;
 
@@ -214,13 +214,13 @@ public class AndroidFlutterUpdaterPlugin {
                         break;
                     }
                     case "getDeviceName":
-                        resultSuccess(result, Utils.getDevice());
+                        resultSuccess(result, Utils.getDevice(mActivity));
                         break;
                     case "getModel":
                         resultSuccess(result, Utils.getModel());
                         break;
                     case "getBuildVersion":
-                        resultSuccess(result, Utils.getBuildVersion());
+                        resultSuccess(result, Utils.getBuildVersion(mActivity));
                         break;
                     case "getBuildDate":
                         resultSuccess(result, Utils.getBuildDate(mActivity));
@@ -251,7 +251,7 @@ public class AndroidFlutterUpdaterPlugin {
                     }
                     case "installUpdate": {
                         final String id = methodCall.argument("id");
-                        final boolean canInstall = Utils.canInstall(mUpdaterController.getUpdate(id));
+                        final boolean canInstall = Utils.canInstall(mActivity, mUpdaterController.getUpdate(id));
                         if (canInstall)
                             Utils.triggerUpdate(mActivity, id);
                         resultSuccess(result, canInstall);
@@ -494,7 +494,7 @@ public class AndroidFlutterUpdaterPlugin {
                 }
             });
             for (UpdateInfo update : sortedUpdates) {
-                if (Utils.canInstall(update))
+                if (Utils.canInstall(mActivity, update))
                     updatesAvailable = true;
                 updateIds.add(update.getDownloadId());
             }

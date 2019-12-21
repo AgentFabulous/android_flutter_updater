@@ -22,6 +22,9 @@
          Is relative to external storage -->
     <string name="download_path" translatable="false">PotatoCenter/</string>
 
+    <!-- Indicates the rom project name (lowercase). To be used for accessing props -->
+    <string name="project" translatable="false">potato</string>
+
     <!--
         Optional placeholders replaced at runtime:
           {device} - Device name

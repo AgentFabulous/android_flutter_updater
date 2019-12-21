@@ -27,8 +27,8 @@ import android.content.IntentFilter;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.content.LocalBroadcastManager;
+import androidx.core.app.NotificationCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import android.text.format.Formatter;
 import android.util.Log;
 
@@ -104,18 +104,18 @@ public class UpdaterService extends Service {
                 String downloadId = intent.getStringExtra(UpdaterController.EXTRA_DOWNLOAD_ID);
                 if (UpdaterController.ACTION_UPDATE_STATUS.equals(intent.getAction())) {
                     UpdateInfo update = mUpdaterController.getUpdate(downloadId);
-                    setNotificationTitle(update);
+                    setNotificationTitle(context, update);
                     Bundle extras = new Bundle();
                     extras.putString(UpdaterController.EXTRA_DOWNLOAD_ID, downloadId);
                     mNotificationBuilder.setExtras(extras);
                     handleUpdateStatusChange(update);
                 } else if (UpdaterController.ACTION_DOWNLOAD_PROGRESS.equals(intent.getAction())) {
                     UpdateInfo update = mUpdaterController.getUpdate(downloadId);
-                    handleDownloadProgressChange(update);
+                    handleDownloadProgressChange(context, update);
                 } else if (UpdaterController.ACTION_INSTALL_PROGRESS.equals(intent.getAction())) {
                     UpdateInfo update = mUpdaterController.getUpdate(downloadId);
-                    setNotificationTitle(update);
-                    handleInstallProgress(update);
+                    setNotificationTitle(context, update);
+                    handleInstallProgress(context, update);
                 } else if (UpdaterController.ACTION_UPDATE_REMOVED.equals(intent.getAction())) {
                     Bundle extras = mNotificationBuilder.getExtras();
                     if (extras != null && downloadId.equals(
@@ -405,14 +405,14 @@ public class UpdaterService extends Service {
         }
     }
 
-    private void handleDownloadProgressChange(UpdateInfo update) {
+    private void handleDownloadProgressChange(Context context, UpdateInfo update) {
         int progress = update.getProgress();
         mNotificationBuilder.setProgress(100, progress, false);
 
         String percent = NumberFormat.getPercentInstance().format(progress / 100.f);
         mNotificationStyle.setSummaryText(percent);
 
-        setNotificationTitle(update);
+        setNotificationTitle(context, update);
 
         String speed = Formatter.formatFileSize(this, update.getSpeed());
         CharSequence eta = StringGenerator.formatETA(this, update.getEta() * 1000);
@@ -422,8 +422,8 @@ public class UpdaterService extends Service {
         mNotificationManager.notify(NOTIFICATION_ID, mNotificationBuilder.build());
     }
 
-    private void handleInstallProgress(UpdateInfo update) {
-        setNotificationTitle(update);
+    private void handleInstallProgress(Context context, UpdateInfo update) {
+        setNotificationTitle(context, update);
         int progress = update.getInstallProgress();
         mNotificationBuilder.setProgress(100, progress, false);
         String percent = NumberFormat.getPercentInstance().format(progress / 100.f);
@@ -436,11 +436,11 @@ public class UpdaterService extends Service {
         mNotificationManager.notify(NOTIFICATION_ID, mNotificationBuilder.build());
     }
 
-    private void setNotificationTitle(UpdateInfo update) {
+    private void setNotificationTitle(Context context, UpdateInfo update) {
         String buildDate = StringGenerator.getDateLocalizedUTC(this,
                 DateFormat.MEDIUM, update.getTimestamp());
         String buildInfo = getString(R.string.list_build_version_date,
-                BuildInfoUtils.getBuildVersion(), buildDate);
+                BuildInfoUtils.getBuildVersion(context), buildDate);
         mNotificationStyle.setBigContentTitle(buildInfo);
         mNotificationBuilder.setContentTitle(buildInfo);
     }
