@@ -88,10 +88,10 @@ public class Utils {
     // used to initialize UpdateInfo objects
     private static UpdateInfo parseJsonUpdate(JSONObject object) throws JSONException {
         Update update = new Update();
-        update.setTimestamp(object.getLong("datetime"));
+        update.setTimestamp(object.getLong("build_date"));
         update.setName(object.getString("filename"));
-        update.setDownloadId(object.getString("id"));
-        update.setType(object.getString("romtype"));
+        update.setDownloadId(object.getString("md5"));
+        update.setType(object.getString("build_type"));
         update.setFileSize(object.getLong("size"));
         update.setDownloadUrl(object.getString("url"));
         update.setVersion(object.getString("version"));
@@ -134,7 +134,7 @@ public class Utils {
         }
 
         JSONObject obj = new JSONObject(json.toString());
-        JSONArray updatesList = obj.getJSONArray("response");
+        JSONArray updatesList = obj.getJSONArray("results");
         for (int i = 0; i < updatesList.length(); i++) {
             if (updatesList.isNull(i)) {
                 continue;
