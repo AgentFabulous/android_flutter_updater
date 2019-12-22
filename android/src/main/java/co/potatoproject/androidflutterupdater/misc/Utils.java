@@ -95,6 +95,7 @@ public class Utils {
         update.setFileSize(object.getLong("size"));
         update.setDownloadUrl(object.getString("url"));
         update.setVersion(object.getString("version"));
+        update.setNotes(object.getString("notes"));
         return update;
     }
 

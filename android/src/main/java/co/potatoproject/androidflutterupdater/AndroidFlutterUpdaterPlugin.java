@@ -213,6 +213,11 @@ public class AndroidFlutterUpdaterPlugin {
                         resultSuccess(result, getTimestampString(id));
                         break;
                     }
+                    case "getNotes": {
+                        final String id = methodCall.argument("id");
+                        resultSuccess(result, getNotes(id));
+                        break;
+                    }
                     case "getDeviceName":
                         resultSuccess(result, Utils.getDevice(mActivity));
                         break;
@@ -539,6 +544,11 @@ public class AndroidFlutterUpdaterPlugin {
     private String getTimestampString(String downloadId) {
         UpdateInfo update = mUpdaterController.getUpdate(downloadId);
         return StringGenerator.getDateLocalizedUTC(mActivity, java.text.DateFormat.LONG, update.getTimestamp());
+    }
+
+    private String getNotes(String downloadId) {
+        UpdateInfo update = mUpdaterController.getUpdate(downloadId);
+        return update.getNotes();
     }
 
     private String getVersion(String downloadId) {
