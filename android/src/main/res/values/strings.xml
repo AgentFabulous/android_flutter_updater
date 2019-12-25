@@ -22,12 +22,15 @@
          Is relative to external storage -->
     <string name="download_path" translatable="false">PotatoCenter/</string>
 
+    <!-- Indicates the rom project name (lowercase). To be used for accessing props -->
+    <string name="project" translatable="false">potato</string>
+
     <!--
         Optional placeholders replaced at runtime:
           {device} - Device name
           {type} - Build type
     -->
-    <string name="updater_server_url" translatable="false">https://api.potatoproject.co/checkUpdate?device={device}&amp;type={type}</string>
+    <string name="updater_server_url" translatable="false">https://api.potatoproject.co/api/ota/builds/?device={device}&amp;build_type={type}</string>
 
     <string name="verification_failed_notification">Verification failed</string>
     <string name="verifying_download_notification">Verifying update</string>

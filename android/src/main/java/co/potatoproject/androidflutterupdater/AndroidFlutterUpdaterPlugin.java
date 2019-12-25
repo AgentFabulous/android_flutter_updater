@@ -14,8 +14,8 @@ import android.content.res.Resources;
 import android.icu.text.DateFormat;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
-import android.support.v4.content.LocalBroadcastManager;
+import androidx.annotation.NonNull;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import android.text.format.Formatter;
 import android.util.Log;
 
@@ -213,14 +213,19 @@ public class AndroidFlutterUpdaterPlugin {
                         resultSuccess(result, getTimestampString(id));
                         break;
                     }
+                    case "getNotes": {
+                        final String id = methodCall.argument("id");
+                        resultSuccess(result, getNotes(id));
+                        break;
+                    }
                     case "getDeviceName":
-                        resultSuccess(result, Utils.getDevice());
+                        resultSuccess(result, Utils.getDevice(mActivity));
                         break;
                     case "getModel":
                         resultSuccess(result, Utils.getModel());
                         break;
                     case "getBuildVersion":
-                        resultSuccess(result, Utils.getBuildVersion());
+                        resultSuccess(result, Utils.getBuildVersion(mActivity));
                         break;
                     case "getBuildDate":
                         resultSuccess(result, Utils.getBuildDate(mActivity));
@@ -539,6 +544,11 @@ public class AndroidFlutterUpdaterPlugin {
     private String getTimestampString(String downloadId) {
         UpdateInfo update = mUpdaterController.getUpdate(downloadId);
         return StringGenerator.getDateLocalizedUTC(mActivity, java.text.DateFormat.LONG, update.getTimestamp());
+    }
+
+    private String getNotes(String downloadId) {
+        UpdateInfo update = mUpdaterController.getUpdate(downloadId);
+        return update.getNotes();
     }
 
     private String getVersion(String downloadId) {

@@ -57,6 +57,9 @@ class AndroidFlutterUpdater {
 
   static Future<String> getTimestamp(String id) async =>
       await _channel.invokeMethod('getTimestamp', {'id': id});
+  
+  static Future<String> getNotes(String id) async =>
+      await _channel.invokeMethod('getNotes', {'id': id});
 
   static Future<void> installUpdate(String id) async =>
       await _channel.invokeMethod('installUpdate', {'id': id});

@@ -15,6 +15,7 @@
  */
 package co.potatoproject.androidflutterupdater.misc;
 
+import android.content.Context;
 import android.os.SystemProperties;
 
 public final class BuildInfoUtils {
