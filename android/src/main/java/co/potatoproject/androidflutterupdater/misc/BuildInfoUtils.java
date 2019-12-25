@@ -27,7 +27,7 @@ public final class BuildInfoUtils {
         return SystemProperties.getLong(Constants.PROP_BUILD_DATE, 0);
     }
 
-    public static String getBuildVersion(Context context) {
-        return SystemProperties.get(Utils.getProjectProp(context, Constants.PROP_BUILD_VERSION));
+    public static String getBuildVersion() {
+        return SystemProperties.get(Utils.getProjectProp(Constants.PROP_BUILD_VERSION));
     }
 }

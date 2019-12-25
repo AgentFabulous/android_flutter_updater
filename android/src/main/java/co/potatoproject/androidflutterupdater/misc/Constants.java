@@ -48,7 +48,7 @@ public final class Constants {
     public static final String PROP_DEVICE = "ro.product.device";
     public static final String PROP_DOWNLOAD_PATH = "ro.{project}.ota_path";
     public static final String PROP_MODEL = "ro.product.model";
-    public static final String PROP_PROJECT_NAME = "potato";
+    public static final String PROP_PROJECT_NAME = "ro.build.project";
     public static final String PROP_RELEASE_TYPE = "ro.{project}.buildtype";
     public static final String PROP_UPDATER_ALLOW_DOWNGRADING = "{project}.updater.allow_downgrading";
     public static final String PROP_UPDATER_URI = "{project}.updater.uri";

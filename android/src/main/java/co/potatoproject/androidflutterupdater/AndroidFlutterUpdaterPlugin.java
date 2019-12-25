@@ -256,7 +256,7 @@ public class AndroidFlutterUpdaterPlugin {
                     }
                     case "installUpdate": {
                         final String id = methodCall.argument("id");
-                        final boolean canInstall = Utils.canInstall(mActivity, mUpdaterController.getUpdate(id));
+                        final boolean canInstall = Utils.canInstall(mUpdaterController.getUpdate(id));
                         if (canInstall)
                             Utils.triggerUpdate(mActivity, id);
                         resultSuccess(result, canInstall);
@@ -499,7 +499,7 @@ public class AndroidFlutterUpdaterPlugin {
                 }
             });
             for (UpdateInfo update : sortedUpdates) {
-                if (Utils.canInstall(mActivity, update))
+                if (Utils.canInstall(update))
                     updatesAvailable = true;
                 updateIds.add(update.getDownloadId());
             }

@@ -63,7 +63,7 @@ public class UpdaterReceiver extends BroadcastReceiver {
         String buildDate = StringGenerator.getDateLocalizedUTC(context,
                 DateFormat.MEDIUM, preferences.getLong(Constants.PREF_INSTALL_NEW_TIMESTAMP, 0));
         String buildInfo = context.getString(R.string.list_build_version_date,
-                BuildInfoUtils.getBuildVersion(context), buildDate);
+                BuildInfoUtils.getBuildVersion(), buildDate);
 
         Intent notificationIntent = new Intent(context, AndroidFlutterUpdaterPlugin.class);
         PendingIntent intent = PendingIntent.getActivity(context, 0, notificationIntent,

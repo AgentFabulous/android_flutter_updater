@@ -67,7 +67,7 @@ public class Utils {
         if (context == null)
             return null;
         String relativeDownloadPath =
-                SystemProperties.get(getProjectProp(context, Constants.PROP_DOWNLOAD_PATH));
+                SystemProperties.get(getProjectProp(Constants.PROP_DOWNLOAD_PATH));
         if (relativeDownloadPath.trim().isEmpty())
             relativeDownloadPath = context.getString(R.string.download_path);
         File dir = new File(Environment.getExternalStorageDirectory(),
@@ -100,7 +100,7 @@ public class Utils {
     }
 
     private static boolean isCompatible(UpdateBaseInfo update, Context context) {
-        if (!SystemProperties.getBoolean(getProjectProp(context, Constants.PROP_UPDATER_ALLOW_DOWNGRADING), false) &&
+        if (!SystemProperties.getBoolean(getProjectProp(Constants.PROP_UPDATER_ALLOW_DOWNGRADING), false) &&
                 update.getTimestamp() <= SystemProperties.getLong(Constants.PROP_BUILD_DATE, 0)) {
             Log.d(TAG, update.getName() + " is older than/equal to the current build");
             return false;
@@ -112,11 +112,11 @@ public class Utils {
         return true;
     }
 
-    public static boolean canInstall(Context context, UpdateBaseInfo update) {
-        return (SystemProperties.getBoolean(getProjectProp(context, Constants.PROP_UPDATER_ALLOW_DOWNGRADING), false) ||
+    public static boolean canInstall(UpdateBaseInfo update) {
+        return (SystemProperties.getBoolean(getProjectProp(Constants.PROP_UPDATER_ALLOW_DOWNGRADING), false) ||
                 update.getTimestamp() > SystemProperties.getLong(Constants.PROP_BUILD_DATE, 0)) &&
                 update.getVersion().equalsIgnoreCase(
-                        SystemProperties.get(getProjectProp(context, Constants.PROP_BUILD_VERSION)));
+                        SystemProperties.get(getProjectProp(Constants.PROP_BUILD_VERSION)));
     }
 
     public static boolean isCurrentOrOlder(UpdateBaseInfo update) {
@@ -156,10 +156,10 @@ public class Utils {
     }
 
     public static String getServerURL(Context context) {
-        String device = SystemProperties.get(getProjectProp(context, Constants.PROP_DEVICE));
+        String device = SystemProperties.get(getProjectProp(Constants.PROP_DEVICE));
         String type = getReleaseType(context);
 
-        String serverUrl = SystemProperties.get(getProjectProp(context, Constants.PROP_UPDATER_URI));
+        String serverUrl = SystemProperties.get(getProjectProp(Constants.PROP_UPDATER_URI));
         if (serverUrl.trim().isEmpty())
             serverUrl = context.getString(R.string.updater_server_url);
 
@@ -398,7 +398,7 @@ public class Utils {
     }
 
     public static String getDevice(Context context) {
-        return SystemProperties.get(getProjectProp(context, Constants.PROP_DEVICE));
+        return SystemProperties.get(getProjectProp(Constants.PROP_DEVICE));
     }
 
     public static String getModel() {
@@ -409,7 +409,7 @@ public class Utils {
         String type = PreferenceManager.getDefaultSharedPreferences(context)
                 .getString(Constants.PREF_RELEASE_TYPE, Constants.DEFAULT_RELEASE_TYPE);
         if (type == null || type.equals(Constants.DEFAULT_RELEASE_TYPE))
-            return SystemProperties.get(getProjectProp(context, Constants.PROP_RELEASE_TYPE)).toLowerCase(Locale.ROOT);
+            return SystemProperties.get(getProjectProp(Constants.PROP_RELEASE_TYPE)).toLowerCase(Locale.ROOT);
         else return type.toLowerCase(Locale.ROOT);
     }
 
@@ -424,7 +424,7 @@ public class Utils {
     }
 
     public static String getBuildVersion(Context context) {
-        return SystemProperties.get(getProjectProp(context, Constants.PROP_BUILD_VERSION));
+        return SystemProperties.get(getProjectProp(Constants.PROP_BUILD_VERSION));
     }
 
     public static String getProp(String prop) {
@@ -442,8 +442,8 @@ public class Utils {
                 .getBoolean(Constants.PREF_AB_PERF_MODE, false);
     }
 
-    static String getProjectProp(Context context, String prop) {
-        return prop.replace("{project}", context.getResources().getString(R.string.project));
+    static String getProjectProp(String prop) {
+        return prop.replace("{project}", SystemProperties.get(Constants.PROP_PROJECT_NAME));
     }
 
     public static boolean getVerify(Context context) {
