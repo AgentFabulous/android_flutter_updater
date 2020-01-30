@@ -160,8 +160,14 @@ class AndroidFlutterUpdater {
   static Future<void> startActivity({String pkg, String cls}) async =>
       await _channel.invokeMethod('startActivity', {'pkg': pkg, 'cls': cls});
 
-  static Future<int> getAccentColor() async =>
-      await _channel.invokeMethod('getAccentColor');
+  static Future<int> getLightAccentColor() async =>
+      await _channel.invokeMethod('getLightAccentColor');
+
+  static Future<int> getDarkAccentColor() async =>
+      await _channel.invokeMethod('getDarkAccentColor');
+
+  static Future<bool> isCurrentThemeDark() async =>
+      await _channel.invokeMethod('isCurrentThemeDark');
 
   static UpdateStatus _strToStatusEnum(String value) =>
       UpdateStatus.values.firstWhere((e) =>

@@ -11,6 +11,7 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.content.res.Configuration;
 import android.icu.text.DateFormat;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
@@ -332,8 +333,16 @@ public class AndroidFlutterUpdaterPlugin {
                         result.success(null);
                         break;
                     }
-                    case "getAccentColor": {
-                        result.success(getAccentColor());
+                    case "getLightAccentColor": {
+                        result.success(getLightAccentColor());
+                        break;
+                    }
+                    case "getDarkAccentColor": {
+                        result.success(getDarkAccentColor());
+                        break;
+                    }
+                    case "isCurrentThemeDark": {
+                        result.success(isCurrentThemeDark());
                         break;
                     }
                     default:
@@ -595,7 +604,20 @@ public class AndroidFlutterUpdaterPlugin {
         preferences.edit().putBoolean(Constants.PREF_AUTO_DELETE_UPDATES, enable).apply();
     }
 
-    private int getAccentColor() {
+    private Integer getLightAccentColor() {
+        String colResName = "accent_device_default_light";
+        Resources res = null;
+        try {
+            res = mActivity.getPackageManager().getResourcesForApplication("android");
+            int resId = res.getIdentifier("android:color/" + colResName, null, null);
+            return res.getColor(resId);
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+    
+      private Integer getDarkAccentColor() {
         String colResName = "accent_device_default_dark";
         Resources res = null;
         try {
@@ -606,5 +628,16 @@ public class AndroidFlutterUpdaterPlugin {
             e.printStackTrace();
         }
         return 0;
+    }
+    
+      private boolean isCurrentThemeDark() {
+        switch (mActivity.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK) {
+            case Configuration.UI_MODE_NIGHT_YES:
+                return true;
+            case Configuration.UI_MODE_NIGHT_NO:
+                return false;
+            default:
+                return false;
+        }
     }
 }
