@@ -44,6 +44,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -113,10 +115,23 @@ public class Utils {
     }
 
     public static boolean canInstall(UpdateBaseInfo update) {
+        String buildVer = SystemProperties.get(getProjectProp(Constants.PROP_BUILD_VERSION));
+        String updateVer = update.getVersion();
         return (SystemProperties.getBoolean(getProjectProp(Constants.PROP_UPDATER_ALLOW_DOWNGRADING), false) ||
                 update.getTimestamp() > SystemProperties.getLong(Constants.PROP_BUILD_DATE, 0)) &&
-                update.getVersion().equalsIgnoreCase(
-                        SystemProperties.get(getProjectProp(Constants.PROP_BUILD_VERSION)));
+                ((getSemVerMajor(updateVer) != -1 && getSemVerMajor(buildVer) != -1 &&
+                        getSemVerMajor(updateVer) == getSemVerMajor(buildVer)) ||
+                        updateVer.equalsIgnoreCase(buildVer));
+    }
+
+    private static int getSemVerMajor(String version) {
+        Pattern semVerRegex = Pattern.compile("(([0-9]+)\\.([0-9]+)\\.([0-9]+)(?:-([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?)(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?");
+        Matcher matcher = semVerRegex.matcher(version);
+        if (matcher.matches()) {
+            return Integer.valueOf(matcher.group(2));
+        } else {
+            return -1;
+        }
     }
 
     public static boolean isCurrentOrOlder(UpdateBaseInfo update) {
