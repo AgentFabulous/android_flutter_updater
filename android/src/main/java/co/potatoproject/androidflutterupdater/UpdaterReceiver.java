@@ -15,6 +15,8 @@
  */
 package co.potatoproject.androidflutterupdater;
 
+import android.annotation.SuppressLint;
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -27,11 +29,11 @@ import android.os.SystemProperties;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.preference.PreferenceManager;
 
+import java.text.DateFormat;
+
 import co.potatoproject.androidflutterupdater.misc.BuildInfoUtils;
 import co.potatoproject.androidflutterupdater.misc.Constants;
 import co.potatoproject.androidflutterupdater.misc.StringGenerator;
-
-import java.text.DateFormat;
 
 public class UpdaterReceiver extends BroadcastReceiver {
 
@@ -55,6 +57,7 @@ public class UpdaterReceiver extends BroadcastReceiver {
         return buildTimestamp == lastBuildTimestamp;
     }
 
+    @SuppressLint("NewApi")
     private static void showUpdateFailedNotification(Context context) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         String buildDate = StringGenerator.getDateLocalizedUTC(context,
@@ -75,11 +78,13 @@ public class UpdaterReceiver extends BroadcastReceiver {
                 .setContentIntent(intent)
                 .setSmallIcon(R.drawable.ic_system_update)
                 .setContentTitle(context.getString(R.string.update_failed_notification))
+                .setAutoCancel(true)
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(buildInfo))
                 .setContentText(buildInfo);
 
         NotificationManager nm = (NotificationManager) context.getSystemService(
                 Context.NOTIFICATION_SERVICE);
+
         nm.createNotificationChannel(notificationChannel);
         nm.notify(0, builder.build());
     }

@@ -15,6 +15,7 @@
  */
 package co.potatoproject.androidflutterupdater;
 
+import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -126,22 +127,25 @@ public class UpdatesCheckReceiver extends BroadcastReceiver {
         }
     }
 
+    @SuppressLint("NewApi")
     private static void showNotification(Context context) {
-        NotificationManager notificationManager =
-                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         NotificationChannel notificationChannel = new NotificationChannel(
                 NEW_UPDATES_NOTIFICATION_CHANNEL,
                 context.getString(R.string.new_updates_channel_title),
                 NotificationManager.IMPORTANCE_LOW);
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context,
-                NEW_UPDATES_NOTIFICATION_CHANNEL);
-        notificationBuilder.setSmallIcon(R.drawable.ic_system_update);
         Intent notificationIntent = new Intent(context, AndroidFlutterUpdaterPlugin.class);
         PendingIntent intent = PendingIntent.getActivity(context, 0, notificationIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
-        notificationBuilder.setContentIntent(intent);
-        notificationBuilder.setContentTitle(context.getString(R.string.new_updates_found_title));
-        notificationBuilder.setAutoCancel(true);
+
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context,
+                NEW_UPDATES_NOTIFICATION_CHANNEL)
+                .setSmallIcon(R.drawable.ic_system_update)
+                .setContentIntent(intent)
+                .setContentTitle(context.getString(R.string.new_updates_found_title))
+                .setAutoCancel(true);
+
+        NotificationManager notificationManager =
+                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.createNotificationChannel(notificationChannel);
         notificationManager.notify(0, notificationBuilder.build());
     }

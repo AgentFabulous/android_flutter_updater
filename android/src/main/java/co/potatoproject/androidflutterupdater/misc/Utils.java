@@ -37,6 +37,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -417,7 +418,8 @@ public class Utils {
     }
 
     public static String getBuildDate(Context context) {
-        return StringGenerator.getDateTimeLocalized(context, Long.parseLong(SystemProperties.get(Constants.PROP_BUILD_DATE)));
+        return StringGenerator.getDateLocalized(context, DateFormat.LONG,
+                Long.parseLong(SystemProperties.get(Constants.PROP_BUILD_DATE)));
     }
 
     public static String getBuildVersion() {

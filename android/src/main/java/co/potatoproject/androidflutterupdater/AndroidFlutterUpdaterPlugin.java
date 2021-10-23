@@ -9,10 +9,12 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.icu.text.DateFormat;
-import android.icu.text.NumberFormat;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.format.Formatter;
 import android.util.Log;
@@ -23,7 +25,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
@@ -56,20 +57,6 @@ public class AndroidFlutterUpdaterPlugin {
     private BroadcastReceiver mBroadcastReceiver;
     private final NativeStreamHandler mNativeStreamHandler = new NativeStreamHandler();
 
-    @SuppressWarnings("unchecked")
-    private HashMap<String, String> mDataMap = new HashMap<String, String>() {{
-        put("has_active_downloads", "false");
-        put("last_checked", getLastCheckedString());
-        put("percentage", "0%");
-        put("size", "0");
-        put("eta", "");
-        put("speed", "");
-        put("force_update_ui", "false");
-        put("update_available", "false");
-        put("update_status", UpdateStatus.UNKNOWN.toString());
-    }};
-
-
     class NativeStreamHandler implements StreamHandler {
 
         EventChannel.EventSink eventSink;
@@ -80,8 +67,14 @@ public class AndroidFlutterUpdaterPlugin {
         }
 
         void emitData(Object data) {
-            if (eventSink != null)
-                eventSink.success(data);
+            if (eventSink != null && mActivity != null) {
+                mActivity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        eventSink.success(data);
+                    }
+                });
+            }
         }
 
         @Override
@@ -91,7 +84,6 @@ public class AndroidFlutterUpdaterPlugin {
     }
 
     private AndroidFlutterUpdaterPlugin(MethodChannel methodProvider, EventChannel eventProvider, Activity activity) {
-
         this.mActivity = activity;
         mBroadcastReceiver = new BroadcastReceiver() {
             @Override
@@ -101,35 +93,13 @@ public class AndroidFlutterUpdaterPlugin {
 
                 if (UpdaterController.ACTION_UPDATE_REMOVED.equals(intent.getAction()) || update == null) {
                     mUpdateIds.remove(downloadId);
-                    if (mUpdateIds.isEmpty())
-                        mDataMap.put("update_available", "false");
-                    mDataMap.put("force_update_ui", "true");
-                    mNativeStreamHandler.emitData(mDataMap);
-                    mDataMap.put("force_update_ui", "false");
+                    mNativeStreamHandler.emitData(downloadId + '~' +
+                            (update == null ? Integer.toString(-1) : update.getProgress()));
                 } else if (UpdaterController.ACTION_UPDATE_STATUS.equals(intent.getAction())) {
-                    String percentage = NumberFormat.getPercentInstance().format(
-                            update.getProgress() / 100.f);
-                    String speed = Formatter.formatFileSize(mActivity, update.getSpeed());
-                    CharSequence eta = StringGenerator.formatETA(mActivity, update.getEta() * 1000);
-                    mDataMap.put("percentage", percentage);
-                    mDataMap.put("size", Long.toString(update.getFileSize()));
-                    mDataMap.put("eta", eta.toString());
-                    mDataMap.put("speed", speed);
-                    mDataMap.put("update_status", update.getStatus().toString());
-                    mNativeStreamHandler.emitData(mDataMap);
+                    mNativeStreamHandler.emitData(downloadId + '~' + update.getProgress());
                 } else if (UpdaterController.ACTION_DOWNLOAD_PROGRESS.equals(intent.getAction()) ||
                         UpdaterController.ACTION_INSTALL_PROGRESS.equals(intent.getAction())) {
-                    String percentage = NumberFormat.getPercentInstance().format(
-                            update.getProgress() / 100.f);
-                    String speed = Formatter.formatFileSize(mActivity, update.getSpeed());
-                    CharSequence eta = StringGenerator.formatETA(mActivity, update.getEta() * 1000);
-                    mDataMap.put("has_active_downloads", Boolean.toString(mUpdaterController.hasActiveDownloads()));
-                    mDataMap.put("percentage", percentage);
-                    mDataMap.put("size", Long.toString(update.getFileSize()));
-                    mDataMap.put("eta", eta.toString());
-                    mDataMap.put("speed", speed);
-                    mDataMap.put("update_status", update.getStatus().toString());
-                    mNativeStreamHandler.emitData(mDataMap);
+                    mNativeStreamHandler.emitData(downloadId + '~' + update.getProgress());
                 }
             }
         };
@@ -145,141 +115,138 @@ public class AndroidFlutterUpdaterPlugin {
 
         methodProvider.setMethodCallHandler(new MethodChannel.MethodCallHandler() {
             @Override
-            public void onMethodCall(MethodCall methodCall, MethodChannel.Result result) {
+            public void onMethodCall(@NonNull MethodCall methodCall, @NonNull MethodChannel.Result result) {
                 switch (methodCall.method) {
                     case "getPlatformVersion":
-                        result.success("Android " + android.os.Build.VERSION.RELEASE);
+                        resultSuccess(result, "Android " + android.os.Build.VERSION.RELEASE);
                         break;
                     case "serviceUnbind":
                         serviceUnbind();
-                        result.success(null);
+                        resultSuccess(result, null);
                         break;
                     case "serviceBind":
                         serviceBind();
-                        result.success(null);
+                        resultSuccess(result, null);
                         break;
                     case "checkForUpdates":
                         getUpdatesList(true);
-                        result.success(null);
+                        resultSuccess(result, null);
                         break;
                     case "getLastChecked":
-                        result.success(getLastCheckedString());
+                        resultSuccess(result, getLastCheckedString());
                         break;
                     case "getDownloads":
-                        result.success(mUpdateIds);
+                        resultSuccess(result, mUpdateIds);
                         break;
                     case "startDownload": {
                         final String id = methodCall.argument("id");
                         startDownload(id);
-                        result.success(null);
+                        resultSuccess(result, null);
                         break;
                     }
                     case "cancelAndDelete": {
                         final String id = methodCall.argument("id");
                         cancelAndDeleteDownload(id);
-                        result.success(null);
+                        resultSuccess(result, null);
                         break;
                     }
                     case "pauseDownload": {
                         final String id = methodCall.argument("id");
                         pauseDownload(id);
-                        result.success(null);
+                        resultSuccess(result, null);
                         break;
                     }
                     case "resumeDownload": {
                         final String id = methodCall.argument("id");
                         resumeDownload(id);
-                        result.success(null);
+                        resultSuccess(result, null);
                         break;
                     }
                     case "verifyDownload": {
                         final String id = methodCall.argument("id");
                         verifyDownload(id);
-                        result.success(null);
+                        resultSuccess(result, null);
                         break;
                     }
                     case "startUpdate": {
                         final String id = methodCall.argument("id");
                         startUpdate(id);
-                        result.success(null);
+                        resultSuccess(result, null);
                         break;
                     }
                     case "needsWarn": {
-                        result.success(needsWarn());
+                        resultSuccess(result, needsWarn());
                         break;
                     }
                     case "getWarn": {
-                        result.success(getWarn());
+                        resultSuccess(result, getWarn());
                         break;
                     }
                     case "setWarn": {
                         final Boolean enable = methodCall.argument("enable");
                         setWarn(enable == null ? false : enable);
-                        result.success(null);
+                        resultSuccess(result, null);
                         break;
                     }
                     case "getAutoDelete": {
-                        result.success(getAutoDelete());
+                        resultSuccess(result, getAutoDelete());
                         break;
                     }
                     case "setAutoDelete": {
                         final Boolean enable = methodCall.argument("enable");
                         setAutoDelete(enable == null ? false : enable);
-                        result.success(null);
+                        resultSuccess(result, null);
                         break;
                     }
                     case "getName": {
                         final String id = methodCall.argument("id");
-                        result.success(getName(id));
+                        resultSuccess(result, getName(id));
                         break;
                     }
                     case "getVersion": {
                         final String id = methodCall.argument("id");
-                        result.success(getVersion(id));
+                        resultSuccess(result, getVersion(id));
                         break;
                     }
                     case "getTimestamp": {
                         final String id = methodCall.argument("id");
-                        result.success(getTimestampString(id));
+                        resultSuccess(result, getTimestampString(id));
                         break;
                     }
                     case "getDeviceName":
-                        result.success(Utils.getDevice());
+                        resultSuccess(result, Utils.getDevice());
                         break;
                     case "getModel":
-                        result.success(Utils.getModel());
+                        resultSuccess(result, Utils.getModel());
                         break;
                     case "getBuildVersion":
-                        result.success(Utils.getBuildVersion());
+                        resultSuccess(result, Utils.getBuildVersion());
                         break;
                     case "getBuildDate":
-                        result.success(Utils.getBuildDate(mActivity));
+                        resultSuccess(result, Utils.getBuildDate(mActivity));
                         break;
                     case "getReleaseType":
-                        result.success(Utils.getReleaseType(mActivity));
+                        resultSuccess(result, Utils.getReleaseType(mActivity));
                         break;
                     case "setReleaseType": {
                         final String type = methodCall.argument("type");
                         Utils.setReleaseType(mActivity, type);
                         getUpdatesList(true);
-                        result.success(null);
+                        resultSuccess(result, null);
                         break;
                     }
                     case "getVerify":
-                        result.success(Utils.getVerify(mActivity));
+                        resultSuccess(result, Utils.getVerify(mActivity));
                         break;
                     case "setVerify": {
                         final Boolean enable = methodCall.argument("enable");
                         Utils.setVerify(mActivity, enable == null ? true : enable);
-                        result.success(null);
+                        resultSuccess(result, null);
                         break;
                     }
-                    case "getNativeStatus":
-                        result.success(mDataMap);
-                        break;
                     case "getProp": {
                         final String prop = methodCall.argument("prop");
-                        result.success(Utils.getProp(prop));
+                        resultSuccess(result, Utils.getProp(prop));
                         break;
                     }
                     case "installUpdate": {
@@ -287,67 +254,81 @@ public class AndroidFlutterUpdaterPlugin {
                         final boolean canInstall = Utils.canInstall(mUpdaterController.getUpdate(id));
                         if (canInstall)
                             Utils.triggerUpdate(mActivity, id);
-                        result.success(canInstall);
+                        resultSuccess(result, canInstall);
                         break;
                     }
                     case "getUpdateCheckInterval":
-                        result.success(Utils.getUpdateCheckSetting(mActivity));
+                        resultSuccess(result, Utils.getUpdateCheckSetting(mActivity));
                         break;
                     case "setUpdateCheckInterval": {
                         final Integer interval = methodCall.argument("interval");
                         Utils.setUpdateCheckSetting(mActivity, interval == null
                                 ? Constants.AUTO_UPDATES_CHECK_INTERVAL_WEEKLY
                                 : interval);
-                        result.success(null);
+                        resultSuccess(result, null);
                         break;
                     }
                     case "isABDevice":
-                        result.success(Utils.isABDevice());
+                        resultSuccess(result, Utils.isABDevice());
                         break;
                     case "setPerformanceMode": {
                         final Boolean enable = methodCall.argument("enable");
                         Utils.setPerformanceMode(mActivity, mUpdaterController, enable == null ? false : enable);
-                        result.success(null);
+                        resultSuccess(result, null);
                         break;
                     }
                     case "getPerformanceMode":
-                        result.success(Utils.getPerformanceMode(mActivity));
+                        resultSuccess(result, Utils.getPerformanceMode(mActivity));
                         break;
                     case "getDownloadProgress": {
                         final String id = methodCall.argument("id");
-                        result.success(mUpdaterController.getUpdate(id).getProgress());
+                        resultSuccess(result, mUpdaterController.getUpdate(id).getProgress());
                         break;
                     }
                     case "getInstallProgress": {
                         final String id = methodCall.argument("id");
-                        result.success(mUpdaterController.getUpdate(id).getInstallProgress());
+                        resultSuccess(result, mUpdaterController.getUpdate(id).getInstallProgress());
                         break;
                     }
                     case "getStatus": {
                         final String id = methodCall.argument("id");
-                        result.success(mUpdaterController.getUpdate(id).getStatus().toString());
+                        resultSuccess(result, mUpdaterController.getUpdate(id).getStatus().toString());
                         break;
                     }
                     case "getPersistentStatus": {
                         final String id = methodCall.argument("id");
-                        result.success(mUpdaterController.getUpdate(id).getPersistentStatus());
+                        resultSuccess(result, mUpdaterController.getUpdate(id).getPersistentStatus());
                         break;
                     }
                     case "getEta": {
                         final String id = methodCall.argument("id");
-                        result.success(StringGenerator.formatETA(mActivity,
+                        resultSuccess(result, StringGenerator.formatETA(mActivity,
                                 mUpdaterController.getUpdate(id).getEta() * 1000));
                         break;
                     }
                     case "getSpeed": {
                         final String id = methodCall.argument("id");
-                        result.success(Formatter.formatFileSize(mActivity,
+                        resultSuccess(result, Formatter.formatFileSize(mActivity,
                                 mUpdaterController.getUpdate(id).getSpeed()));
                         break;
                     }
                     case "getSize": {
                         final String id = methodCall.argument("id");
-                        result.success(Long.toString(mUpdaterController.getUpdate(id).getFileSize()));
+                        resultSuccess(result, Long.toString(mUpdaterController.getUpdate(id).getFileSize()));
+                        break;
+                    }
+                    case "startActivity": {
+                        final String pkg = methodCall.argument("pkg");
+                        final String cls = methodCall.argument("cls");
+                        if (pkg != null && cls != null) {
+                            mActivity.startActivity(new Intent().setComponent(new ComponentName(
+                                    pkg, cls)));
+                        }
+                        result.success(null);
+                        break;
+                    }
+                    case "getAccentColor": {
+                        result.success(getAccentColor());
                         break;
                     }
                     default:
@@ -360,9 +341,19 @@ public class AndroidFlutterUpdaterPlugin {
         eventProvider.setStreamHandler(mNativeStreamHandler);
     }
 
+    private void resultSuccess(MethodChannel.Result result, Object object) {
+        if (mActivity == null) return;
+        mActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                result.success(object);
+            }
+        });
+    }
+
     public static void registerWith(Registrar registrar) {
-        final MethodChannel methodProvider = new MethodChannel(registrar.messenger(), "android_flutter_updater_methods");
-        final EventChannel eventProvider = new EventChannel(registrar.view(), "android_flutter_updater_events");
+        final MethodChannel methodProvider = new MethodChannel(registrar.messenger(), "android_flutter_updater/methods");
+        final EventChannel eventProvider = new EventChannel(registrar.view(), "android_flutter_updater/events");
         new AndroidFlutterUpdaterPlugin(methodProvider, eventProvider, registrar.activity());
     }
 
@@ -384,12 +375,9 @@ public class AndroidFlutterUpdaterPlugin {
         final SharedPreferences preferences =
                 PreferenceManager.getDefaultSharedPreferences(mActivity);
         long lastCheck = preferences.getLong(Constants.PREF_LAST_UPDATE_CHECK, -1) / 1000;
-        String ret = String.format(Locale.ROOT, mActivity.getResources().getString(R.string.header_last_updates_check),
+        return String.format(Locale.ROOT, mActivity.getResources().getString(R.string.header_last_updates_check),
                 StringGenerator.getDateLocalized(mActivity, DateFormat.LONG, lastCheck),
                 StringGenerator.getTimeLocalized(mActivity, lastCheck));
-        mDataMap.put("last_checked", ret);
-        mNativeStreamHandler.emitData(mDataMap);
-        return ret;
     }
 
     private void getUpdatesList(boolean ignoreCache) {
@@ -510,37 +498,29 @@ public class AndroidFlutterUpdaterPlugin {
                     updatesAvailable = true;
                 updateIds.add(update.getDownloadId());
             }
-            mDataMap.put("update_available", Boolean.toString(updatesAvailable));
+            mNativeStreamHandler.emitData("update_available~" + updatesAvailable);
         } else {
-            mDataMap.put("update_available", "false");
+            mNativeStreamHandler.emitData("update_available~false");
         }
-
-        mDataMap.put("force_update_ui", "true");
-        mNativeStreamHandler.emitData(mDataMap);
-        mDataMap.put("force_update_ui", "false");
-
         mUpdateIds = updateIds;
     }
 
     private void cancelAndDeleteDownload(String downloadId) {
         pauseDownload(downloadId);
-        mDataMap.put("has_active_downloads", Boolean.toString(mUpdaterController.hasActiveDownloads()));
-        mNativeStreamHandler.emitData(mDataMap);
         mUpdaterController.deleteUpdate(downloadId);
+        mNativeStreamHandler.emitData(downloadId + '~' + 0);
     }
 
     private void pauseDownload(String downloadId) {
         UpdateInfo update = mUpdaterController.getUpdate(downloadId);
-        mDataMap.put("update_status", update.getStatus().toString());
-        mNativeStreamHandler.emitData(mDataMap);
         mUpdaterController.pauseDownload(downloadId);
+        mNativeStreamHandler.emitData(downloadId + '~' + update.getProgress());
     }
 
     private void resumeDownload(String downloadId) {
         UpdateInfo update = mUpdaterController.getUpdate(downloadId);
-        mDataMap.put("update_status", update.getStatus().toString());
-        mNativeStreamHandler.emitData(mDataMap);
         mUpdaterController.resumeDownload(downloadId);
+        mNativeStreamHandler.emitData(downloadId + '~' + update.getProgress());
     }
 
     private void verifyDownload(String downloadId) {
@@ -548,6 +528,7 @@ public class AndroidFlutterUpdaterPlugin {
         if (update.getStatus() == UpdateStatus.DOWNLOADED ||
                 update.getStatus() == UpdateStatus.VERIFICATION_FAILED)
             resumeDownload(downloadId);
+        mNativeStreamHandler.emitData(downloadId + '~' + update.getProgress());
     }
 
     private String getName(String downloadId) {
@@ -557,8 +538,7 @@ public class AndroidFlutterUpdaterPlugin {
 
     private String getTimestampString(String downloadId) {
         UpdateInfo update = mUpdaterController.getUpdate(downloadId);
-        return StringGenerator.getDateLocalizedUTC(mActivity,
-                DateFormat.MEDIUM, update.getTimestamp());
+        return StringGenerator.getDateLocalizedUTC(mActivity, java.text.DateFormat.LONG, update.getTimestamp());
     }
 
     private String getVersion(String downloadId) {
@@ -603,5 +583,18 @@ public class AndroidFlutterUpdaterPlugin {
         SharedPreferences preferences =
                 PreferenceManager.getDefaultSharedPreferences(mActivity);
         preferences.edit().putBoolean(Constants.PREF_AUTO_DELETE_UPDATES, enable).apply();
+    }
+
+    private int getAccentColor() {
+        String colResName = "accent_device_default_dark";
+        Resources res = null;
+        try {
+            res = mActivity.getPackageManager().getResourcesForApplication("android");
+            int resId = res.getIdentifier("android:color/" + colResName, null, null);
+            return res.getColor(resId);
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        return 0;
     }
 }
